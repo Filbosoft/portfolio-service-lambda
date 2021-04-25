@@ -28,9 +28,9 @@ namespace Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Portfolio>> Get()
+        public async Task<IEnumerable<Portfolio>> Get([FromQuery] long ownerId)
         {
-            var portfolios = await _portfolioRepository.GetPortfolios();
+            var portfolios = await _portfolioRepository.GetPortfolios(ownerId);
             return portfolios;
         }
 

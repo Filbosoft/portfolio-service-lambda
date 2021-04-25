@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
 using Domain.Models;
 
 namespace Api.Repositories
@@ -10,7 +12,7 @@ namespace Api.Repositories
     {
         Task<Portfolio> CreatePortfolio(Portfolio portfolio);
         Task<Portfolio> UpdatePortfolio(Portfolio portfolio);
-        Task<IEnumerable<Portfolio>> GetPortfolios();
+        Task<IEnumerable<Portfolio>> GetPortfolios(long ownerId);
         Task<Portfolio> GetPortfolio(string id);
         Task<bool> DeletePortfolio(string id);
     }
@@ -36,9 +38,12 @@ namespace Api.Repositories
             return portfolio;
         }
 
-        public async Task<IEnumerable<Portfolio>> GetPortfolios()
+        public async Task<IEnumerable<Portfolio>> GetPortfolios(long ownerId)
         {
-            var scanConditions = new List<ScanCondition>();
+            var scanConditions = new List<ScanCondition>
+            {
+                new ScanCondition(nameof(Portfolio.Owner), ScanOperator.Equal, ownerId)
+            };
             var portfolios = await _context.ScanAsync<Portfolio>(scanConditions).GetRemainingAsync();
 
             return portfolios;

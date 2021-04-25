@@ -38,8 +38,8 @@ namespace DBMigrationTool
                 },
                 ProvisionedThroughput = new ProvisionedThroughput
                 {
-                    ReadCapacityUnits = 10,
-                    WriteCapacityUnits = 5
+                    ReadCapacityUnits = 5,
+                    WriteCapacityUnits = 2
                 }
             };
 
