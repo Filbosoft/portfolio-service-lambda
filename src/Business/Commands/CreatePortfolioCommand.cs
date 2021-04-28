@@ -17,7 +17,7 @@ namespace Business.Commands
         public string Currency { get; set; }
         [Required]
         [Range(1,long.MaxValue)]
-        public int Owner { get; set; }
+        public long Owner { get; set; }
     }
 
     public class CreatePortfolioCommandHandler : IHandlerWrapper<CreatePortfolioCommand, Portfolio>
@@ -33,7 +33,6 @@ namespace Business.Commands
         public async Task<BusinessResponse<Portfolio>> Handle(CreatePortfolioCommand request, CancellationToken cancellationToken)
         {
             var entity = _mapper.Map<Portfolio>(request);
-            entity.Id = Guid.NewGuid().ToString();
 
             await _portfolioRepository.CreatePortfolioAsync(entity);
 

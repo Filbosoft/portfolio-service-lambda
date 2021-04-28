@@ -34,6 +34,12 @@ namespace Api
                 .ConfigureMediatRPipeline()
                 .AddBusinessDependencies()
                 .AddDataAccessDependencies(Configuration)
+                .AddApiVersioning(options =>
+                {
+                    options.AssumeDefaultVersionWhenUnspecified = true;
+                    options.ReportApiVersions = true;
+                    options.DefaultApiVersion = new ApiVersion(1, 0);
+                })
                 .AddControllers();
         }
 

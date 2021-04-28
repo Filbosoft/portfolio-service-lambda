@@ -14,7 +14,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
-    [Route("api/[controller]")]
+    [ApiController]
+    [ApiVersion("1.0")]
+    [Route("api/v{v:apiVersion}")]
+    [Produces("application/json")]
     public class PortfoliosController : ControllerBase
     {
         private readonly IMediator _mediator;

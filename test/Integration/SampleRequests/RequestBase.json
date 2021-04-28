@@ -1,11 +1,13 @@
 {
   "resource": "/{proxy+}",
-  "path": "/api/values",
+  "path": "/api",
   "httpMethod": "GET",
-  "headers": null,
+  "headers": {
+    "Content-Type":"application/json"
+  },
   "queryStringParameters": null,
   "pathParameters": {
-    "proxy": "api/values"
+    "proxy": "api"
   },
   "stageVariables": null,
   "requestContext": {
