@@ -4,24 +4,40 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.TestUtilities;
 using Api;
 using Business.Commands;
 using Domain.Models;
 using FluentAssertions;
+using FluentAssertions.Execution;
+using Microsoft.Extensions.Configuration;
 using Test.Integration.Utilities;
 using Xunit;
 
 namespace Integration.Tests.V1.PortfolioTests
 {
-    public class CreatePortfolioTests
+    public class CreatePortfolioTests : IClassFixture<CustomWebApplicationFactory<Startup>>, IDisposable
     {
         private readonly LambdaEntryPoint _entryPoint;
+        private readonly TestLambdaContext _context;
+        private readonly APIGatewayProxyRequest _request;
+        private readonly IDynamoDBContext _db;
+        
         private const string PORTFOLIO_URI = "api/v1";
-        public CreatePortfolioTests()
+        public CreatePortfolioTests(CustomWebApplicationFactory<Startup> factory)
         {
+            factory.CreateClient();
             _entryPoint = new LambdaEntryPoint();
+            _context = new TestLambdaContext();
+            _request = factory.CreateBaseRequest();
+            _db = factory.GetDbContext();
+        }
+
+        public void Dispose()
+        {
         }
 
         [Fact]
@@ -34,36 +50,36 @@ namespace Integration.Tests.V1.PortfolioTests
                 Currency = "DKK",
                 Owner = 1
             };
-            var context = new TestLambdaContext();
-            var requestStr = File.ReadAllText("../../../SampleRequests/RequestBase.json");
-            var request = JsonSerializer.Deserialize<APIGatewayProxyRequest>(requestStr, new JsonSerializerOptions {PropertyNameCaseInsensitive = true});
-            
-            request.HttpMethod = HttpMethod.Post.ToString();
-            request.Path = PORTFOLIO_URI;
-            request.PathParameters = new Dictionary<string,string>
+
+            _request.HttpMethod = HttpMethod.Post.ToString();
+            _request.Path = PORTFOLIO_URI;
+            _request.PathParameters = new Dictionary<string, string>
             {
                 {"proxy", PORTFOLIO_URI}
             };
-            request.Body = JsonSerializer.Serialize(createPortfolioCommand);
+            _request.Body = JsonSerializer.Serialize(createPortfolioCommand);
 
 
             //When
-            var httpResponse = await _entryPoint.FunctionHandlerAsync(request, context);
+            var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
 
             //Then
             httpResponse.StatusCode.Should().Equals(HttpStatusCode.Created);
-        
+
             var newPortfolio = httpResponse.GetDeserializedResponseBody<Portfolio>();
 
-            newPortfolio.Should().NotBeNull()
+            using (new AssertionScope())
+            {
+                newPortfolio.Should().NotBeNull();
+                newPortfolio.Should().BeEquivalentTo(createPortfolioCommand, options => options
+                    .ExcludingMissingMembers());
+                newPortfolio.Id.Should().NotBeNullOrEmpty();
+            }
+
+            var dbPortfolio = await _db.LoadAsync<Portfolio>(newPortfolio.Id);
+            dbPortfolio.Should().NotBeNull()
                 .And.BeEquivalentTo(createPortfolioCommand, options => options
                     .ExcludingMissingMembers());
-                
-            // var dbPortfolio = await _db.Portfolios.FindAsync(newPortfolio.Id);
-            // dbPortfolio.Should().NotBeNull()
-            //     .And.BeEquivalentTo(createPortfolioCommand, options => options
-            //         .Excluding(p => p.Id)
-            //         .ExcludingTracking());
         }
     }
 }

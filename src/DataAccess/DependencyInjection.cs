@@ -26,7 +26,7 @@ namespace DataAccess
 
             if (isLocalMode)
             {
-                services.AddSingleton<IAmazonDynamoDB>(sp =>
+                services.AddScoped<IAmazonDynamoDB>(sp =>
                 {
                     var clientConfig = new AmazonDynamoDBConfig { ServiceURL = dynamoConfig.GetValue<string>("LocalServiceUrl") };
                     return new AmazonDynamoDBClient(clientConfig);
