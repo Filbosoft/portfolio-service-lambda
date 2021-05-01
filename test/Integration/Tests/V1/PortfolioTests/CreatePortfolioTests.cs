@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
-using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.TestUtilities;
@@ -13,7 +11,6 @@ using Business.Commands;
 using Domain.Models;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.Extensions.Configuration;
 using Test.Integration.Utilities;
 using Xunit;
 
@@ -80,6 +77,36 @@ namespace Integration.Tests.V1.PortfolioTests
             dbPortfolio.Should().NotBeNull()
                 .And.BeEquivalentTo(createPortfolioCommand, options => options
                     .ExcludingMissingMembers());
+        }
+
+        [Theory]
+        [MemberData(nameof(CreatePortfolioCommandsWithMissingValues))]
+        public async void CreatePortfolio_withMissingValues_ShouldReturnBadRequest(CreatePortfolioCommand createPortfolioCommand)
+        {
+            //Given
+            _request.HttpMethod = HttpMethod.Post.ToString();
+            _request.Path = PORTFOLIO_URI;
+            _request.PathParameters = new Dictionary<string, string>
+            {
+                {"proxy", PORTFOLIO_URI}
+            };
+            _request.Body = JsonSerializer.Serialize(createPortfolioCommand);
+
+            //When
+            var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
+
+            //Then
+            httpResponse.StatusCode.Should().Equals(HttpStatusCode.BadRequest);
+        }
+
+        public static IEnumerable<object[]> CreatePortfolioCommandsWithMissingValues
+        {
+            get
+            {
+                yield return new Object[] { new CreatePortfolioCommand { Currency = "DKK", Owner = 0 } };
+                yield return new Object[] { new CreatePortfolioCommand { Name = "PortfolioName", Owner = 0 } };
+                yield return new Object[] { new CreatePortfolioCommand { Name = "PortfolioName", Currency = "DKK" } };
+            }
         }
     }
 }

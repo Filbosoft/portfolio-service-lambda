@@ -14,17 +14,16 @@ namespace Integration
     public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<Startup>, IDisposable
     {
         private IConfiguration Configuration;
-        private IDynamoDBContext DBContext;
-
+        public readonly IDynamoDBContext DbContext;        
+        private readonly string _baseRequestString = File.ReadAllText("./SampleRequests/RequestBase.json");
         public CustomWebApplicationFactory()
         {
-            /***
-            * Gets the configuration from the appsettings.json placed in the Api/conf folder.
-            ***/
             var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Testing";
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false)
                 .Build();
+
+            DbContext = GetScopedService<IDynamoDBContext>();
         }
 
         public new void Dispose()
@@ -34,21 +33,18 @@ namespace Integration
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            var projectDir = Directory.GetCurrentDirectory();
-            var configPath = Path.Combine(projectDir, "appsettings.json");
-
             builder
-            .UseEnvironment("Testing")
-            .ConfigureAppConfiguration((ContextBoundObject, config) =>
-            {
-                config
-                    .AddJsonFile(configPath);
-            })
-            .ConfigureServices(services =>
-            {
-                services
-                    .ReplaceServicesWithTestServices();
-            });
+                .UseEnvironment("Testing")
+                .ConfigureAppConfiguration((ContextBoundObject, config) =>
+                {
+                    config
+                        .AddConfiguration(Configuration);
+                })
+                .ConfigureServices(services =>
+                {
+                    services
+                        .ReplaceServicesWithTestServices();
+                });
         }
 
         // public HttpClient CreateAuthorizedClient()
@@ -61,19 +57,13 @@ namespace Integration
         // }
         public APIGatewayProxyRequest CreateBaseRequest()
         {
-            var baseRequestStr = File.ReadAllText("./SampleRequests/RequestBase.json");
-            var baseRequest = JsonSerializer.Deserialize<APIGatewayProxyRequest>(baseRequestStr, 
+            var baseRequest = JsonSerializer.Deserialize<APIGatewayProxyRequest>(_baseRequestString, 
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             return baseRequest;
         }
 
-        public IDynamoDBContext GetDbContext()
-        {
-            var dbContext = GetScopedService<IDynamoDBContext>();
-
-            return dbContext;
-        }
+        public IDynamoDBContext GetDbContext() => DbContext;
 
         public T GetScopedService<T>()
         {            
