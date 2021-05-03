@@ -15,7 +15,7 @@ namespace Integration
     {
         private IConfiguration Configuration;
         public readonly IDynamoDBContext DbContext;        
-        private readonly string _baseRequestString = File.ReadAllText("./SampleRequests/RequestBase.json");
+        private readonly string _baseRequestString = File.ReadAllText("RequestBase.json");
         public CustomWebApplicationFactory()
         {
             var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Testing";
@@ -28,6 +28,7 @@ namespace Integration
 
         public new void Dispose()
         {
+            DbContext.Dispose();
             base.Dispose();
         }
 

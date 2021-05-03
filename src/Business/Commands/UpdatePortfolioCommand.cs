@@ -3,13 +3,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using Business.Commands.Common;
 using Business.Wrappers;
 using Domain.Models;
 using Domain.Repositories;
 
 namespace Business.Commands
 {
-    public class UpdatePortfolioCommand : IRequestWrapper<Portfolio>
+    public class UpdatePortfolioCommand : UpdateCommand, IRequestWrapper<Portfolio>
     {
         [Required]
         public string Id { get; set; }
@@ -30,7 +31,8 @@ namespace Business.Commands
         }
         public async Task<BusinessResponse<Portfolio>> Handle(UpdatePortfolioCommand request, CancellationToken cancellationToken)
         {
-            var entity = _mapper.Map<Portfolio>(request);
+            var entity = await _portfolioRepository.GetPortfolioAsync(request.Id);
+            entity = request.TransferUpdatedValues<Portfolio>(entity);
             
             await _portfolioRepository.UpdatePortfolioAsync(entity);
 

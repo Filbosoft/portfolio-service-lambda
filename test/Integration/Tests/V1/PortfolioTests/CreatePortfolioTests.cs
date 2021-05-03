@@ -11,7 +11,7 @@ using Business.Commands;
 using Domain.Models;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Test.Integration.Utilities;
+using Integration.Utilities;
 using Xunit;
 
 namespace Integration.Tests.V1.PortfolioTests
@@ -26,15 +26,23 @@ namespace Integration.Tests.V1.PortfolioTests
         private const string PORTFOLIO_URI = "api/v1";
         public CreatePortfolioTests(CustomWebApplicationFactory<Startup> factory)
         {
-            factory.CreateClient();
             _entryPoint = new LambdaEntryPoint();
             _context = new TestLambdaContext();
+
             _request = factory.CreateBaseRequest();
+            _request.HttpMethod = HttpMethod.Post.ToString();
+            _request.Path = PORTFOLIO_URI;
+            _request.PathParameters = new Dictionary<string, string>
+            {
+                {"proxy", PORTFOLIO_URI}
+            };
+
             _db = factory.GetDbContext();
         }
 
         public void Dispose()
         {
+            _db.Dispose();
         }
 
         [Fact]
@@ -48,14 +56,7 @@ namespace Integration.Tests.V1.PortfolioTests
                 Owner = 1
             };
 
-            _request.HttpMethod = HttpMethod.Post.ToString();
-            _request.Path = PORTFOLIO_URI;
-            _request.PathParameters = new Dictionary<string, string>
-            {
-                {"proxy", PORTFOLIO_URI}
-            };
             _request.Body = JsonSerializer.Serialize(createPortfolioCommand);
-
 
             //When
             var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
@@ -84,12 +85,6 @@ namespace Integration.Tests.V1.PortfolioTests
         public async void CreatePortfolio_withMissingValues_ShouldReturnBadRequest(CreatePortfolioCommand createPortfolioCommand)
         {
             //Given
-            _request.HttpMethod = HttpMethod.Post.ToString();
-            _request.Path = PORTFOLIO_URI;
-            _request.PathParameters = new Dictionary<string, string>
-            {
-                {"proxy", PORTFOLIO_URI}
-            };
             _request.Body = JsonSerializer.Serialize(createPortfolioCommand);
 
             //When

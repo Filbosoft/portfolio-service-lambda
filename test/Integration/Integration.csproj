@@ -9,7 +9,7 @@
     <EnableDefaultContentItems>False</EnableDefaultContentItems>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include=".\SampleRequests\*">
+    <Content Include="RequestBase.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

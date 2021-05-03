@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Amazon.Lambda.APIGatewayEvents;
 
-namespace Test.Integration.Utilities
+namespace Integration.Utilities
 {
     public static class HttpSerializer
     {
