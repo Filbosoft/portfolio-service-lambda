@@ -6,11 +6,11 @@ using Domain.Models;
 using Domain.Repositories;
 
 namespace DataAccess.Repositories
-{    public class PortfoliosRepository : IPortfolioRepository
+{    public class PortfolioRepository : IPortfolioRepository
     {
         private readonly IDynamoDBContext _context;
 
-        public PortfoliosRepository(IDynamoDBContext context)
+        public PortfolioRepository(IDynamoDBContext context)
         {
             _context = context;
         }

@@ -10,6 +10,7 @@ using Api;
 using Domain.Models;
 using FluentAssertions;
 using Integration.Utilities;
+using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace Integration.Tests.V1.PortfolioTests
@@ -72,7 +73,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
 
             //Then
-            httpResponse.Should().Equals(HttpStatusCode.OK);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
             var portfolio = httpResponse.GetDeserializedResponseBody<Portfolio>();
 
             portfolio.Should().NotBeNull()
@@ -98,7 +99,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
 
             //Then
-            httpResponse.StatusCode.Should().Equals(HttpStatusCode.NotFound);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         }
     }
 }

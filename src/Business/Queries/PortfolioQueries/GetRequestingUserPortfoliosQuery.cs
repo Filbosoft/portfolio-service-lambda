@@ -1,14 +1,12 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using Business.Wrappers;
 using Domain.Repositories;
 using Domain.Models;
 using MediatR;
 
-namespace Business.Queries
+namespace Business.Queries.PortfolioQueries
 {
     public class GetRequestingUserPortfoliosQuery : BusinessRequest, IRequestWrapper<IEnumerable<Portfolio>>
     { }

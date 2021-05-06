@@ -7,12 +7,12 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.TestUtilities;
 using Api;
-using Business.Commands;
 using Business.Commands.PortfolioCommands;
 using Domain.Models;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Integration.Utilities;
+using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace Integration.Tests.V1.PortfolioTests
@@ -63,7 +63,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
 
             //Then
-            httpResponse.StatusCode.Should().Equals(HttpStatusCode.Created);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status201Created);
 
             var newPortfolio = httpResponse.GetDeserializedResponseBody<Portfolio>();
 
@@ -92,7 +92,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
 
             //Then
-            httpResponse.StatusCode.Should().Equals(HttpStatusCode.BadRequest);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         }
 
         public static IEnumerable<object[]> CreatePortfolioCommandsWithMissingValues

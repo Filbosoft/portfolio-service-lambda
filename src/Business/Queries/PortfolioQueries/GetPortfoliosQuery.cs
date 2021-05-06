@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.DataModel;
@@ -9,7 +8,7 @@ using Business.Wrappers;
 using Domain.Repositories;
 using Domain.Models;
 
-namespace Business.Queries
+namespace Business.Queries.PortfolioQueries
 {
     public class GetPortfoliosQuery : BusinessRequest, IRequestWrapper<IEnumerable<Portfolio>>
     { 

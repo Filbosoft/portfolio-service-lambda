@@ -9,6 +9,7 @@ using Api;
 using Domain.Models;
 using FluentAssertions;
 using Integration.Utilities;
+using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace Integration.Tests.V1.PortfolioTests
@@ -102,7 +103,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
 
             //Then
-            httpResponse.Should().Equals(HttpStatusCode.OK);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
             var portfolios = httpResponse.GetDeserializedResponseBody<IEnumerable<Portfolio>>();
 
             portfolios.Should().NotBeEmpty();
@@ -122,7 +123,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
 
             //Then
-            httpResponse.Should().Equals(HttpStatusCode.OK);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
             var portfolios = httpResponse.GetDeserializedResponseBody<IEnumerable<Portfolio>>();
 
             portfolios.Should().NotBeEmpty();
@@ -141,7 +142,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
 
             //Then
-            httpResponse.Should().Equals(HttpStatusCode.OK);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
             var portfolios = httpResponse.GetDeserializedResponseBody<IEnumerable<Portfolio>>();
 
             portfolios.Should().BeEmpty();
@@ -160,7 +161,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
 
             //Then
-            httpResponse.Should().Equals(HttpStatusCode.OK);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
             var portfolios = httpResponse.GetDeserializedResponseBody<IEnumerable<Portfolio>>();
 
             portfolios.Should().BeEmpty();

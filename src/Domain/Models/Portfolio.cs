@@ -22,6 +22,6 @@ namespace Domain.Models
         [DynamoDBProperty]
         public string Currency { get; set; }
         [DynamoDBProperty(typeof(ListMapPropertyConverter<Order>))]
-        public IEnumerable<Order> Orders { get; set; }        
+        public IEnumerable<Order> Orders { get; set; } = new List<Order>();      
     }
 }

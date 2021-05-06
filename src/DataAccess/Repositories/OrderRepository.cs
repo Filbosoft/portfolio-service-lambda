@@ -10,7 +10,7 @@ using Domain.Repositories;
 
 namespace DataAccess.Repositories
 {
-    public class OrdersRepository : IOrderRepository
+    public class OrderRepository : IOrderRepository
     {
         private readonly IDynamoDBContext _context;
         private readonly IAmazonDynamoDB _db;
@@ -18,7 +18,7 @@ namespace DataAccess.Repositories
 
 
 
-        public OrdersRepository(IDynamoDBContext context, IAmazonDynamoDB db)
+        public OrderRepository(IDynamoDBContext context, IAmazonDynamoDB db)
         {
             _context = context;
             _db = db;
@@ -47,6 +47,11 @@ namespace DataAccess.Repositories
         {
             order.Id = Guid.NewGuid().ToString();
             var orderMap = DynamoDBMapper.GetAttributeMap(order);
+            var expressionValues = new Dictionary<string, AttributeValue>
+            {
+                {":order", new AttributeValue{M = orderMap}},
+                {":portfolioId", new AttributeValue{S = portfolioId}}
+            };
             UpdateItemRequest request = new UpdateItemRequest
             {
                 TableName = PORTFOLIO_TABLE_NAME,
@@ -55,14 +60,12 @@ namespace DataAccess.Repositories
                         {nameof(Portfolio.Id), new AttributeValue{S = portfolioId}}
                     },
                 UpdateExpression = "SET Orders.#orderId = :order",
+                ConditionExpression = "Id = :portfolioId",
                 ExpressionAttributeNames = new Dictionary<string, string>
                     {
                         {"#orderId", order.Id}
                     },
-                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
-                    {
-                        {":order", new AttributeValue{M = orderMap}}
-                    },
+                ExpressionAttributeValues = expressionValues,
                 ReturnValues = "UPDATED_NEW"
             };
             UpdateItemResponse response;
@@ -71,14 +74,18 @@ namespace DataAccess.Repositories
             {
                 response = await _db.UpdateItemAsync(request);
             }
+            catch (ConditionalCheckFailedException)
+            {
+                throw new KeyNotFoundException();
+            }
             catch (AmazonDynamoDBException)
             {
                 request.UpdateExpression = "SET Orders = :order";
                 request.ExpressionAttributeNames = null;
-                request.ExpressionAttributeValues = new Dictionary<string, AttributeValue>
-                {
-                    {":order", new AttributeValue{M = new Dictionary<string, AttributeValue>{{order.Id, new AttributeValue{M = orderMap}}}}}
-                };
+                expressionValues.Remove(":order");
+                expressionValues.Add(":order", new AttributeValue{M = new Dictionary<string, AttributeValue>{{order.Id, new AttributeValue{M = orderMap}}}});
+                // request.ExpressionAttributeValues.Remove(":order");
+                // request.ExpressionAttributeValues.Add(":order", new AttributeValue{M = new Dictionary<string, AttributeValue>{{order.Id, new AttributeValue{M = orderMap}}}});
 
                 response = await _db.UpdateItemAsync(request);
             }

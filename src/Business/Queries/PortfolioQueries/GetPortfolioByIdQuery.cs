@@ -1,11 +1,10 @@
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using Business.Wrappers;
 using Domain.Repositories;
 using Domain.Models;
 
-namespace Business.Queries
+namespace Business.Queries.PortfolioQueries
 {
     public class GetPortfolioByIdQuery : BusinessRequest, IRequestWrapper<Portfolio>
     { 
@@ -24,6 +23,9 @@ namespace Business.Queries
         public async Task<BusinessResponse<Portfolio>> Handle(GetPortfolioByIdQuery request, CancellationToken cancellationToken)
         {
             var portfolio = await _portfolioRepository.GetPortfolioAsync(request.PortfolioId);
+
+            if (portfolio == null)
+                return BusinessResponse.Fail<Portfolio>($"No portfolio with the id of {request.PortfolioId} was found");
 
             return BusinessResponse.Ok<Portfolio>(portfolio);
         }

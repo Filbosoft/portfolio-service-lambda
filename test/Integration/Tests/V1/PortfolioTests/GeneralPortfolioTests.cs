@@ -14,6 +14,7 @@ using DataAccess;
 using Domain.Models;
 using FluentAssertions;
 using Integration.Utilities;
+using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace Integration.Tests.V1.PortfolioTests
@@ -75,7 +76,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(request, _context);
 
             //Then
-            httpResponse.StatusCode.Should().Equals(HttpStatusCode.Created);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status201Created);
 
             var newPortfolio = httpResponse.GetDeserializedResponseBody<Portfolio>();
             newPortfolio.Should().NotBeNull();
@@ -98,13 +99,14 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(request, _context);
 
             //Then
-            httpResponse.StatusCode.Should().Equals(HttpStatusCode.OK);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
 
             var readPortfolio = httpResponse.GetDeserializedResponseBody<Portfolio>();
 
             readPortfolio.Should()
                 .NotBeNull()
-                .And.BeEquivalentTo(portfolio);
+                .And.BeEquivalentTo(portfolio, options => 
+                    options.ExcludingMissingMembers());
 
             return readPortfolio;
         }
@@ -127,7 +129,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(request, _context);
 
             //Then
-            httpResponse.StatusCode.Should().Equals(HttpStatusCode.Accepted);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status202Accepted);
 
             var updatedPortfolio = httpResponse.GetDeserializedResponseBody<Portfolio>();
 
@@ -152,7 +154,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(request, _context);
 
             //Then
-            httpResponse.StatusCode.Should().Equals(HttpStatusCode.OK);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
         }
     }
 }

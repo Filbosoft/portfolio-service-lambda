@@ -43,8 +43,8 @@ namespace DataAccess
         private static IServiceCollection AddRepositories(this IServiceCollection services)
         {
             services
-                .AddScoped<IPortfolioRepository, PortfoliosRepository>()
-                .AddScoped<IOrderRepository, OrdersRepository>();
+                .AddScoped<IPortfolioRepository, PortfolioRepository>()
+                .AddScoped<IOrderRepository, OrderRepository>();
 
             return services;
         }

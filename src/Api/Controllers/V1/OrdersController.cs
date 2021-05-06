@@ -75,17 +75,18 @@ namespace Api.Controllers
         // }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Portfolio>> GetById([FromRoute] string id)
+        public async Task<ActionResult<Order>> GetById([FromRoute] string portfolioId, [FromRoute] string orderId)
         {
-            var query = new GetPortfolioByIdQuery { PortfolioId = id };
-            var response = await _mediator.Send(query);
+            // var query = new GetPortfolioOrderByIdQuery { PortfolioId = portfolioId, OrderId = orderId };
+            // var response = await _mediator.Send(query);
 
-            if (response.IsError) 
-                return NotFound(response.Message);
+            // if (response.IsError) 
+            //     return NotFound(response.Message);
 
-            var portfolio = response.Data;
+            // var order = response.Data;
 
-            return Ok(portfolio);
+            // return Ok(order);
+            return Ok();
         }
 
 

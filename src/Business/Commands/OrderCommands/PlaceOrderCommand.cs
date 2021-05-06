@@ -7,19 +7,19 @@ using Business.Wrappers;
 using Domain.Repositories;
 using Domain.Models;
 using Domain.Enums;
+using System.Collections.Generic;
 
 namespace Business.Commands.OrderCommands
 {
     public class PlaceOrderCommand : BusinessRequest, IRequestWrapper<Order>
     {
-        [Required]
         public string PortfolioId { get; set; }
         [Required]
-        public OrderType Type { get; set; }
+        public OrderType? Type { get; set; }
         [Required]
         public string AssetId { get; set; }
         [Required]
-        public AssetType AssetType { get; set; }
+        public AssetType? AssetType { get; set; }
         [Required]
         [Range(1,int.MaxValue)]
         public int Quantity { get; set; }
@@ -44,10 +44,18 @@ namespace Business.Commands.OrderCommands
         public async Task<BusinessResponse<Order>> Handle(PlaceOrderCommand request, CancellationToken cancellationToken)
         {
             var entity = _mapper.Map<Order>(request);
+            Order placedOrder;
 
-            var response = await _orderRepository.PlaceOrderAsync(request.PortfolioId, entity);
-
-            return BusinessResponse.Ok<Order>(response, "Order created!");
+            try
+            {
+                placedOrder = await _orderRepository.PlaceOrderAsync(request.PortfolioId, entity);
+            } 
+            catch (KeyNotFoundException)
+            {
+                return BusinessResponse.Fail<Order>($"No portfolio with the id of {request.PortfolioId} found");
+            }
+            
+            return BusinessResponse.Ok<Order>(placedOrder, "Order created!");
         }
     }
 }

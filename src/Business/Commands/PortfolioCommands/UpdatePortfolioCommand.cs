@@ -12,7 +12,6 @@ namespace Business.Commands.PortfolioCommands
 {
     public class UpdatePortfolioCommand : UpdateCommand, IRequestWrapper<Portfolio>
     {
-        [Required]
         public string Id { get; set; }
         public string Name { get; set; }
         public string Currency { get; set; }
@@ -32,6 +31,9 @@ namespace Business.Commands.PortfolioCommands
         public async Task<BusinessResponse<Portfolio>> Handle(UpdatePortfolioCommand request, CancellationToken cancellationToken)
         {
             var entity = await _portfolioRepository.GetPortfolioAsync(request.Id);
+            if (entity == null)
+                return BusinessResponse.Fail<Portfolio>($"No portfolio with the id of {request.Id} was found");
+
             entity = request.TransferUpdatedValues<Portfolio>(entity);
             
             await _portfolioRepository.UpdatePortfolioAsync(entity);
