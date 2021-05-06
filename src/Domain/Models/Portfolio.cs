@@ -7,10 +7,10 @@ using Domain.PropertyConverters;
 namespace Domain.Models
 {
     [DynamoDBTable("Portfolios")]
-    public class Portfolio
+    public class Portfolio : BaseModel
     {
         [DynamoDBHashKey]
-        public string Id { get; set; }
+        public new string Id { get; set; }
         [Required]
         [DynamoDBProperty]
         public string Name { get; set; }

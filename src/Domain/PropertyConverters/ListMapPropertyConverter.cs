@@ -8,44 +8,60 @@ using Domain.Models;
 
 namespace Domain.PropertyConverters
 {
+    /***
+    * This property converter converts a DynamoDB entry of type Map<string, Map> (DynamoDBTypes: M & S)
+    * into a list of the passed type and vice versa.
+    * 
+    * The document / entry structure should look like the following:
+    * {
+    *   "objectId1" : {"Id":"objectId1","attribute1Key":"attribute1Value"},
+    *   "objectId2" : {"Id":"objectId2","attribute1Key":"attribute1Value"}
+    * }
+    *
+    * The reason it's not in a List (DynamoDBType: L) is because it isn't possible to index inside a List
+    * but it is on a map.
+    * 
+    * Sources of knowledge:
+    * - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBContext.ArbitraryDataMapping.html
+    ***/
     public class ListMapPropertyConverter<T> : IPropertyConverter
-        where T : new()
+        where T : BaseModel, new()
     {
-        public object FromEntry(DynamoDBEntry ordersEntry)
+        public object FromEntry(DynamoDBEntry entry)
         {
-            Document ordersEntryDocument = ordersEntry as Document;
-            var ordersEntryMap = ordersEntryDocument.ToAttributeMap();
-            var orderEntryMaps = ordersEntryMap
+            Document entryDocument = entry as Document;
+            var entryMap = entryDocument.ToAttributeMap();
+            var subEntryMaps = entryMap
                 .Select(x => x.Value.M)
                 .ToList();
             
-            var orders = new List<T>();
+            var entities = new List<T>();
 
-            foreach (var orderEntryMap in orderEntryMaps)
+            foreach (var subEntryMap in subEntryMaps)
             {
-                var newEntity = DynamoDBMapper.MapAttributeMapToEntity<T>(orderEntryMap);
-                orders.Add(newEntity);
+                var entity = DynamoDBMapper.MapAttributeMapToEntity<T>(subEntryMap);
+                entities.Add(entity);
             }
 
-            return orders;
+            return entities;
         }
 
         public DynamoDBEntry ToEntry(object value)
         {
-            List<Order> orders = value as List<Order>;
-            if (orders == null) throw new ArgumentOutOfRangeException();
+            List<T> entities = value as List<T>;
+            if (entities == null) throw new ArgumentOutOfRangeException();
 
-            var orderEntries = new Dictionary<string, AttributeValue>();
+            var entries = new Dictionary<string, AttributeValue>();
 
-            foreach (var order in orders)
+            foreach (var entity in entities)
             {
-                var orderEntry = DynamoDBMapper.GetAttributeMap(order);
-                orderEntries.Add(order.Id, new AttributeValue { M = orderEntry});
+                var subEntry = DynamoDBMapper.GetAttributeMap(entity);
+                entries.Add(entity.Id, new AttributeValue { M = subEntry});
             }
 
             DynamoDBEntry entry = new Primitive
             {
-                Value = new AttributeValue{M = orderEntries} 
+                Value = new AttributeValue{M = entries} 
             };
             return entry;
         }

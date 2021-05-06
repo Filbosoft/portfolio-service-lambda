@@ -3,9 +3,8 @@ using Domain.Enums;
 
 namespace Domain.Models
 {
-    public class Order
+    public class Order : BaseModel
     {
-        public string Id { get; set; }
         public OrderType Type { get; set; }
         public string AssetId { get; set; }
         public AssetType AssetType { get; set; }
