@@ -1,5 +1,5 @@
 using AutoMapper;
-using Business.Commands;
+using Business.Commands.PortfolioCommands;
 using Domain.Models;
 
 namespace Business.MappingProfiles

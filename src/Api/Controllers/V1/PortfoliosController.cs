@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Api.Repositories;
-using Business.Commands;
+using Business.Commands.PortfolioCommands;
 using Business.Queries;
 using Domain.Models;
 using MediatR;
@@ -16,7 +16,7 @@ namespace Api.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/v{v:apiVersion}")]
+    [Route("api/v{v:apiVersion}/[controller]")]
     [Produces("application/json")]
     public class PortfoliosController : ControllerBase
     {

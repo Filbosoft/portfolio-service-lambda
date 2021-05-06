@@ -6,8 +6,9 @@ using AutoMapper;
 using Business.Wrappers;
 using Domain.Repositories;
 using Domain.Models;
+using System.Collections.Generic;
 
-namespace Business.Commands
+namespace Business.Commands.PortfolioCommands
 {
     public class CreatePortfolioCommand : BusinessRequest, IRequestWrapper<Portfolio>
     {
@@ -33,6 +34,7 @@ namespace Business.Commands
         public async Task<BusinessResponse<Portfolio>> Handle(CreatePortfolioCommand request, CancellationToken cancellationToken)
         {
             var entity = _mapper.Map<Portfolio>(request);
+            entity.Orders = new List<Order>();
 
             await _portfolioRepository.CreatePortfolioAsync(entity);
 

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Business.Wrappers;
 using Domain.Repositories;
 
-namespace Business.Commands
+namespace Business.Commands.PortfolioCommands
 {
     public class DeletePortfolioCommand : IRequestWrapper<bool>
     {

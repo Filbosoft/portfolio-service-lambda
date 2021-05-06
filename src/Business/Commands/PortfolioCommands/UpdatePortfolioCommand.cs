@@ -8,7 +8,7 @@ using Business.Wrappers;
 using Domain.Models;
 using Domain.Repositories;
 
-namespace Business.Commands
+namespace Business.Commands.PortfolioCommands
 {
     public class UpdatePortfolioCommand : UpdateCommand, IRequestWrapper<Portfolio>
     {

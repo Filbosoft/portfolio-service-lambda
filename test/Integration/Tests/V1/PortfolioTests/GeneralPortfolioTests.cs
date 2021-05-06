@@ -9,6 +9,7 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.TestUtilities;
 using Api;
 using Business.Commands;
+using Business.Commands.PortfolioCommands;
 using DataAccess;
 using Domain.Models;
 using FluentAssertions;
@@ -23,7 +24,7 @@ namespace Integration.Tests.V1.PortfolioTests
         private readonly TestLambdaContext _context;
         private readonly CustomWebApplicationFactory<Startup> _factory;
         private readonly IDynamoDBContext _db;
-        private const string PORTFOLIO_URI = "api/v1";
+        private const string PORTFOLIO_URI = "api/v1/portfolios";
 
         public GeneralPortfolioTests(CustomWebApplicationFactory<Startup> factory)
         {

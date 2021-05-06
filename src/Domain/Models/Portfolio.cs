@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Amazon.DynamoDBv2.DataModel;
+using Domain.PropertyConverters;
 
 namespace Domain.Models
 {
@@ -19,5 +21,7 @@ namespace Domain.Models
         [Required]
         [DynamoDBProperty]
         public string Currency { get; set; }
+        [DynamoDBProperty(typeof(ListMapPropertyConverter<Order>))]
+        public IEnumerable<Order> Orders { get; set; }        
     }
 }
