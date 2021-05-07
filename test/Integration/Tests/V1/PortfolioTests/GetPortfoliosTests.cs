@@ -36,6 +36,7 @@ namespace Integration.Tests.V1.PortfolioTests
             };
 
             _db = factory.GetDbContext();
+            factory.Dispose();
 
             Setup();
         }

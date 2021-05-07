@@ -8,27 +8,34 @@ using System.IO;
 using Amazon.Lambda.APIGatewayEvents;
 using System.Text.Json;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2;
 
 namespace Integration
 {
     public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<Startup>, IDisposable
     {
         private IConfiguration Configuration;
-        public readonly IDynamoDBContext DbContext;        
+        public readonly IDynamoDBContext DbContext;
+        public readonly IAmazonDynamoDB Db;
         private readonly string _baseRequestString = File.ReadAllText("RequestBase.json");
         public CustomWebApplicationFactory()
         {
             var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Testing";
+            Environment.SetEnvironmentVariable("DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE", "false");
             Configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
                 .Build();
 
+            Db = GetScopedService<IAmazonDynamoDB>();
             DbContext = GetScopedService<IDynamoDBContext>();
         }
 
         public new void Dispose()
         {
+            Db.Dispose();
             DbContext.Dispose();
+            Server.Dispose();
+            
             base.Dispose();
         }
 
@@ -64,6 +71,7 @@ namespace Integration
             return baseRequest;
         }
 
+        public IAmazonDynamoDB GetDb() => Db;
         public IDynamoDBContext GetDbContext() => DbContext;
 
         public T GetScopedService<T>()

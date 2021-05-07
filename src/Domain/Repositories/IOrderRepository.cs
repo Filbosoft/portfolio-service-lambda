@@ -9,7 +9,6 @@ namespace Domain.Repositories
     {
         Task<Order> PlaceOrderAsync(string portfolioId, Order order);
         Task<Order> UpdateOrderAsync(string portfolioId, Order order);
-        Task<IEnumerable<Order>> GetPortfolioOrdersAsync(string portfolioId, IEnumerable<ScanCondition> conditions);
         Task<Order> GetPortfolioOrderAsync(string portfolioId, string orderId);
     }
 }

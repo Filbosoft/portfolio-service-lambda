@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
@@ -34,7 +35,7 @@ namespace Domain.PropertyConverters
             var subEntryMaps = entryMap
                 .Select(x => x.Value.M)
                 .ToList();
-            
+
             var entities = new List<T>();
 
             foreach (var subEntryMap in subEntryMaps)

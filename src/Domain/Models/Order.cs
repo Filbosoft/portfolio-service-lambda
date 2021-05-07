@@ -13,6 +13,7 @@ namespace Domain.Models
         public decimal Price { get; set; }
         public string Currency { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
         public DateTime ExpiresAt { get; set; }
     }
 }

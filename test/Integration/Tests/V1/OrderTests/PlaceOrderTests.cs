@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
+using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.TestUtilities;
 using Api;
 using Business.Commands.OrderCommands;
 using Domain.Enums;
@@ -16,14 +18,21 @@ using Xunit;
 
 namespace Integration.Tests.V1.OrderTests
 {
-    public class PlaceOrderTests : OrderTestsBase
+    public class PlaceOrderTests : IClassFixture<CustomWebApplicationFactory<Startup>>, IDisposable
     {
-        protected readonly APIGatewayProxyRequest _request;
+        private readonly LambdaEntryPoint _entryPoint;
+        private readonly TestLambdaContext _context;
+        private readonly APIGatewayProxyRequest _request;
+        private readonly IDynamoDBContext _dbContext;
 
+        private const string ORDER_URI = "api/v1/portfolios";
         private readonly string PORTFOLIO1_ORDER_URI = $"{ORDER_URI}/{Portfolio1.Id}/orders";
 
-        public PlaceOrderTests(CustomWebApplicationFactory<Startup> factory) : base(factory)
+        public PlaceOrderTests(CustomWebApplicationFactory<Startup> factory)
         {
+            _entryPoint = new LambdaEntryPoint();
+            _context = new TestLambdaContext();
+
             _request = factory.CreateBaseRequest();
             _request.HttpMethod = HttpMethod.Post.ToString();
             _request.Path = PORTFOLIO1_ORDER_URI;
@@ -32,7 +41,15 @@ namespace Integration.Tests.V1.OrderTests
                 {"proxy", PORTFOLIO1_ORDER_URI}
             };
 
+            _dbContext = factory.GetDbContext();
+            factory.Dispose();
+
             Setup();
+        }
+
+        public void Dispose()
+        {
+            _dbContext.Dispose();
         }
 
         /**
@@ -50,7 +67,7 @@ namespace Integration.Tests.V1.OrderTests
 
         private async void Setup()
         {
-            await _db.SaveAsync<Portfolio>(Portfolio1);
+            await _dbContext.SaveAsync<Portfolio>(Portfolio1);
         }
 
         [Fact]
@@ -74,7 +91,7 @@ namespace Integration.Tests.V1.OrderTests
             var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
 
             //Then
-            httpResponse.StatusCode.Should().Equals(HttpStatusCode.Created);
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status201Created);
 
             var newOrder = httpResponse.GetDeserializedResponseBody<Order>();
 
@@ -84,9 +101,10 @@ namespace Integration.Tests.V1.OrderTests
                 newOrder.Should().BeEquivalentTo(placeOrderCommand, options => options
                     .ExcludingMissingMembers());
                 newOrder.Id.Should().NotBeNullOrEmpty();
+                newOrder.CreatedAt.Should().NotBeBefore(DateTime.UtcNow.AddMinutes(-5));
             }
 
-            var dbPortfolio = await _db.LoadAsync<Portfolio>(Portfolio1.Id);
+            var dbPortfolio = await _dbContext.LoadAsync<Portfolio>(Portfolio1.Id);
             dbPortfolio.Orders.Should().NotBeEmpty()
                 .And.ContainEquivalentOf(placeOrderCommand, options => options
                     .ExcludingMissingMembers());
