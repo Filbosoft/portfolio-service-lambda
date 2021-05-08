@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
 using AutoMapper;
 using Business.Wrappers;
 using Domain.Repositories;
@@ -12,7 +10,7 @@ using Domain.Enums;
 using System.Linq;
 using System;
 
-namespace Business.Queries.PortfolioQueries
+namespace Business.Queries.OrderQueries
 {
     public class GetPortfolioOrdersQuery : BusinessRequest, IRequestWrapper<IEnumerable<Order>>
     {

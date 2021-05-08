@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain.Models;
-using Amazon.DynamoDBv2.DataModel;
 
 namespace Domain.Repositories
 {
@@ -9,6 +7,5 @@ namespace Domain.Repositories
     {
         Task<Order> PlaceOrderAsync(string portfolioId, Order order);
         Task<Order> UpdateOrderAsync(string portfolioId, Order order);
-        Task<Order> GetPortfolioOrderAsync(string portfolioId, string orderId);
     }
 }

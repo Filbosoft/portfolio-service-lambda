@@ -65,7 +65,7 @@ namespace DataAccess.Repositories
                 request.UpdateExpression = "SET Orders = :order";
                 request.ExpressionAttributeNames = null;
                 expressionValues.Remove(":order");
-                expressionValues.Add(":order", new AttributeValue{M = new Dictionary<string, AttributeValue>{{order.Id, new AttributeValue{M = orderMap}}}});
+                expressionValues.Add(":order", new AttributeValue { M = new Dictionary<string, AttributeValue> { { order.Id, new AttributeValue { M = orderMap } } } });
 
                 response = await _db.UpdateItemAsync(request);
             }
@@ -73,14 +73,31 @@ namespace DataAccess.Repositories
             return order;
         }
 
-        public Task<Order> UpdateOrderAsync(string portfolioId, Order order)
+        public async Task<Order> UpdateOrderAsync(string portfolioId, Order order)
         {
-            throw new NotImplementedException();
-        }
+            var orderMap = DynamoDBMapper.GetAttributeMap(order);
 
-        public Task<Order> GetPortfolioOrderAsync(string portfolioId, string orderId)
-        {
-            throw new NotImplementedException();
+            UpdateItemRequest request = new UpdateItemRequest
+            {
+                TableName = PORTFOLIO_TABLE_NAME,
+                Key = new Dictionary<string, AttributeValue>
+                    {
+                        {nameof(Portfolio.Id), new AttributeValue{S = portfolioId}}
+                    },
+                UpdateExpression = "SET Orders.#orderId = :order",
+                ExpressionAttributeNames = new Dictionary<string, string>
+                    {
+                        {"#orderId", order.Id}
+                    },
+                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                {
+                    {":order", new AttributeValue{M = orderMap}},
+                },
+                ReturnValues = "UPDATED_NEW"
+            };
+            UpdateItemResponse response = await _db.UpdateItemAsync(request);
+
+            return order;
         }
     }
 }

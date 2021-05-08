@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Api.Repositories;
 using Business.Commands.OrderCommands;
 using Business.Queries;
-using Business.Queries.PortfolioQueries;
+using Business.Queries.OrderQueries;
 using Domain.Enums;
 using Domain.Models;
 using MediatR;
@@ -27,12 +27,6 @@ namespace Api.Controllers
             _mediator = mediator;
         }
 
-        //PlaceOrder
-        //GetPortfolioOrder
-        //GetPortfolioOrders
-        //UpdateOrder
-        //CancelOrder
-
         [HttpPost]
         public async Task<ActionResult<Order>> PlaceOrder([FromRoute] string portfolioId, [FromBody] PlaceOrderCommand command)
         {
@@ -44,14 +38,14 @@ namespace Api.Controllers
 
             var newOrder = response.Data;
             return CreatedAtAction(
-                nameof(GetById),
-                new { portfolioId = portfolioId,  Id = newOrder.Id },
+                nameof(GetPortfolioOrderById),
+                new { portfolioId = portfolioId, Id = newOrder.Id },
                 newOrder
             );
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Order>>> GetPortfolioOrders([FromRoute] string portfolioId, 
+        public async Task<ActionResult<IEnumerable<Order>>> GetPortfolioOrders([FromRoute] string portfolioId,
             [FromQuery] OrderType? type,
             [FromQuery] string assetId,
             [FromQuery] AssetType? assetType,
@@ -83,43 +77,53 @@ namespace Api.Controllers
             return Ok(orders);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetById([FromRoute] string portfolioId, [FromRoute] string orderId)
+        [HttpGet("{orderId}")]
+        public async Task<ActionResult<Order>> GetPortfolioOrderById([FromRoute] string portfolioId, [FromRoute] string orderId)
         {
-            // var query = new GetPortfolioOrderByIdQuery { PortfolioId = portfolioId, OrderId = orderId };
-            // var response = await _mediator.Send(query);
+            var query = new GetPortfolioOrderByIdQuery { PortfolioId = portfolioId, OrderId = orderId };
+            var response = await _mediator.Send(query);
 
-            // if (response.IsError) 
-            //     return NotFound(response.Message);
+            if (response.IsError)
+                return NotFound(response.Message);
 
-            // var order = response.Data;
+            var order = response.Data;
 
-            // return Ok(order);
-            return Ok();
+            return Ok(order);
         }
 
 
-        // [HttpPut("{id}")]
-        // public async Task<ActionResult<Portfolio>> Put([FromRoute] string id, [FromBody] UpdatePortfolioCommand command)
-        // {
-        //     command.Id = id;
-        //     var response = await _mediator.Send(command);
+        [HttpPut("{orderId}")]
+        public async Task<ActionResult<Order>> UpdatePortfolioOrder(
+            [FromRoute] string portfolioId,
+            [FromRoute] string orderId,
+            [FromBody] UpdateOrderCommand command)
+        {
+            command.PortfolioId = portfolioId;
+            command.Id = orderId;
+            var response = await _mediator.Send(command);
 
-        //     if (response.IsError) 
-        //         return NotFound(response.Message);
+            if (response.IsError)
+                return NotFound(response.Message);
 
-        //     var updatedPortfolio = response.Data;
+            var updatedOrder = response.Data;
 
-        //     return Accepted(updatedPortfolio);
-        // }
+            return Accepted(updatedOrder);
+        }
 
-        // [HttpDelete("{id}")]
-        // public async Task<ActionResult<bool>> Delete([FromRoute] string id)
-        // {
-        //     var command = new DeletePortfolioCommand { PortfolioId = id };
-        //     var response = await _mediator.Send(command);
+        [HttpDelete("{orderId}")]
+        public async Task<ActionResult<bool>> CancelPortfolioOrder(
+            [FromRoute] string portfolioId,
+            [FromRoute] string orderId
+        )
+        {
+            var command = new CancelOrderCommand
+            {
+                PortfolioId = portfolioId,
+                OrderId = orderId
+            };
+            var response = await _mediator.Send(command);
 
-        //     return Ok();
-        // }
+            return Ok();
+        }
     }
 }
