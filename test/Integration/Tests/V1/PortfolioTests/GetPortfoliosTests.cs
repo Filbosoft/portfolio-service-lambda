@@ -98,7 +98,6 @@ namespace Integration.Tests.V1.PortfolioTests
         {
             //Given
             //Portfolios has been seeded
-            
 
             //When
             var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);

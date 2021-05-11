@@ -6,7 +6,7 @@ using Domain.Repositories;
 
 namespace Business.Commands.PortfolioCommands
 {
-    public class DeletePortfolioCommand : IRequestWrapper<bool>
+    public class DeletePortfolioCommand : BusinessRequest, IRequestWrapper<bool>
     {
         [Required]
         public string PortfolioId { get; set; }
@@ -22,7 +22,7 @@ namespace Business.Commands.PortfolioCommands
         }
         public async Task<BusinessResponse<bool>> Handle(DeletePortfolioCommand request, CancellationToken cancellationToken)
         {
-            await _portfolioRepository.DeletePortfolioAsync(request.PortfolioId);
+            await _portfolioRepository.DeletePortfolioAsync(request.PortfolioId, request.RequestingUserId);
 
             return BusinessResponse.Ok<bool>(true, "Portfolio deleted!");
         }

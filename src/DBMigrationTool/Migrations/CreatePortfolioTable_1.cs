@@ -26,6 +26,11 @@ namespace DBMigrationTool
                     {
                         AttributeName = nameof(Portfolio.Id),
                         AttributeType = ScalarAttributeType.S
+                    },
+                    new AttributeDefinition
+                    {
+                        AttributeName = nameof(Portfolio.Owner),
+                        AttributeType = ScalarAttributeType.N
                     }
                 },
                 KeySchema = new List<KeySchemaElement>()
@@ -34,6 +39,11 @@ namespace DBMigrationTool
                     {
                         AttributeName = nameof(Portfolio.Id),
                         KeyType = KeyType.HASH //Partition key
+                    },
+                    new KeySchemaElement
+                    {
+                        AttributeName = nameof(Portfolio.Owner),
+                        KeyType = KeyType.RANGE
                     }
                 },
                 ProvisionedThroughput = new ProvisionedThroughput

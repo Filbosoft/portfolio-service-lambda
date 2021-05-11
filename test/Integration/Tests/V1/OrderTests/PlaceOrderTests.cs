@@ -42,7 +42,6 @@ namespace Integration.Tests.V1.OrderTests
             };
 
             _dbContext = factory.GetDbContext();
-            factory.Dispose();
 
             Setup();
         }

@@ -24,7 +24,7 @@ namespace Business.Queries.OrderQueries
 
         public async Task<BusinessResponse<Order>> Handle(GetPortfolioOrderByIdQuery request, CancellationToken cancellationToken)
         {
-            var portfolio = await _portfolioRepository.GetPortfolioAsync(request.PortfolioId);
+            var portfolio = await _portfolioRepository.GetPortfolioAsync(request.PortfolioId, request.RequestingUserId);
 
             if (portfolio == null)
                 return BusinessResponse.Fail<Order>($"No portfolio with the id of {request.PortfolioId} was found");

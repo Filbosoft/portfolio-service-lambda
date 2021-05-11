@@ -21,7 +21,7 @@ namespace Api.Infrastructure
             //     .FirstOrDefault(x => x.Type.Equals(ClaimTypes.NameIdentifier))
             //     .Value;
 
-            if (request is BusinessRequest br) br.RequestingUserId = 0;
+            if (request is BusinessRequest br) br.RequestingUserId = 1;
 
             return await next();
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Amazon.Lambda.Core;
 using Business.Commands.PortfolioCommands;
 using Business.Queries.PortfolioQueries;
 using Domain.Models;
@@ -56,6 +57,7 @@ namespace Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Portfolio>> GetById([FromRoute] string id)
         {
+            LambdaLogger.Log($"Request: Portfolio/GetById, id: {id}");
             var query = new GetPortfolioByIdQuery { PortfolioId = id };
             var response = await _mediator.Send(query);
 

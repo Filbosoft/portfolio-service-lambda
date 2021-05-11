@@ -21,7 +21,6 @@ namespace Integration
         public CustomWebApplicationFactory()
         {
             var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Testing";
-            Environment.SetEnvironmentVariable("DOTNET_HOSTBUILDER__RELOADCONFIGONCHANGE", "false");
             Configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
                 .Build();
@@ -35,25 +34,25 @@ namespace Integration
             Db.Dispose();
             DbContext.Dispose();
             Server.Dispose();
-            
+
             base.Dispose();
         }
 
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            builder
-                .UseEnvironment("Testing")
-                .ConfigureAppConfiguration((ContextBoundObject, config) =>
-                {
-                    config
-                        .AddConfiguration(Configuration);
-                })
-                .ConfigureServices(services =>
-                {
-                    services
-                        .ReplaceServicesWithTestServices();
-                });
-        }
+        // protected override void ConfigureWebHost(IWebHostBuilder builder)
+        // {
+        //     builder
+        //         .UseEnvironment("Testing")
+        //         .ConfigureAppConfiguration((ContextBoundObject, config) =>
+        //         {
+        //             config
+        //                 .AddConfiguration(Configuration);
+        //         })
+        //         .ConfigureServices(services =>
+        //         {
+        //             services
+        //                 .ReplaceServicesWithTestServices();
+        //         });
+        // }
 
         // public HttpClient CreateAuthorizedClient()
         // {
@@ -65,7 +64,7 @@ namespace Integration
         // }
         public APIGatewayProxyRequest CreateBaseRequest()
         {
-            var baseRequest = JsonSerializer.Deserialize<APIGatewayProxyRequest>(_baseRequestString, 
+            var baseRequest = JsonSerializer.Deserialize<APIGatewayProxyRequest>(_baseRequestString,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
             return baseRequest;
@@ -75,7 +74,7 @@ namespace Integration
         public IDynamoDBContext GetDbContext() => DbContext;
 
         public T GetScopedService<T>()
-        {            
+        {
             var scopeFactory = this.Services.GetRequiredService<IServiceScopeFactory>();
             var scope = scopeFactory.CreateScope();
 

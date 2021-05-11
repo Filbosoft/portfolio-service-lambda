@@ -13,7 +13,7 @@ using MediatR;
 
 namespace Business.Commands.OrderCommands
 {
-    public class CancelOrderCommand : UpdateCommand, IRequestWrapper<Order>
+    public class CancelOrderCommand : BusinessRequest, IRequestWrapper<Order>
     {
         [Required]
         public string PortfolioId { get; set; }

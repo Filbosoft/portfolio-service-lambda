@@ -30,7 +30,7 @@ namespace Business.Commands.PortfolioCommands
         }
         public async Task<BusinessResponse<Portfolio>> Handle(UpdatePortfolioCommand request, CancellationToken cancellationToken)
         {
-            var entity = await _portfolioRepository.GetPortfolioAsync(request.Id);
+            var entity = await _portfolioRepository.GetPortfolioAsync(request.Id, request.RequestingUserId);
             if (entity == null)
                 return BusinessResponse.Fail<Portfolio>($"No portfolio with the id of {request.Id} was found");
 
