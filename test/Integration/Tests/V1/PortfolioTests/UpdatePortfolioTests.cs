@@ -54,7 +54,7 @@ namespace Integration.Tests.V1.PortfolioTests
             Id = Guid.NewGuid().ToString(),
             Name = "TestPortfolio1",
             Currency = "DKK",
-            Owner = 10040001
+            Owner = "83f684b0-e288-47d5-8489-8e11fc03e4ea"
         };
 
         private async void Setup()
@@ -72,7 +72,7 @@ namespace Integration.Tests.V1.PortfolioTests
                 Id = Portfolio1.Id,
                 Name = "portfolioName_updated",
                 Currency = "USD",
-                Owner = 1004002
+                Owner = "8f9c0c9a-4cb9-4559-ab12-df09900ca1d3"
             };
 
             _request.Path = uri;
@@ -194,7 +194,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var portfolioUpdator = new UpdatePortfolioCommand
             {
                 Id = Portfolio1.Id,
-                Owner = 10040002
+                Owner = "fab7fdb9-0801-49a5-bc0e-f946a5ba716d"
             };
 
             _request.Path = uri;

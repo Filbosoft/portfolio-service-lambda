@@ -1,8 +1,5 @@
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using Business.Commands.Common;
 using Business.Wrappers;
 using Domain.Models;
@@ -15,18 +12,16 @@ namespace Business.Commands.PortfolioCommands
         public string Id { get; set; }
         public string Name { get; set; }
         public string Currency { get; set; }
-        public long? Owner { get; set; }
+        public string Owner { get; set; }
     }
 
     public class UpdatePortfolioCommandHandler : IHandlerWrapper<UpdatePortfolioCommand, Portfolio>
     {
         private readonly IPortfolioRepository _portfolioRepository;        
-        private readonly IMapper _mapper;
 
-        public UpdatePortfolioCommandHandler(IPortfolioRepository portfolioRepository, IMapper mapper)
+        public UpdatePortfolioCommandHandler(IPortfolioRepository portfolioRepository)
         {
             _portfolioRepository = portfolioRepository;
-            _mapper = mapper;
         }
         public async Task<BusinessResponse<Portfolio>> Handle(UpdatePortfolioCommand request, CancellationToken cancellationToken)
         {

@@ -30,7 +30,7 @@ namespace DBMigrationTool
                     new AttributeDefinition
                     {
                         AttributeName = nameof(Portfolio.Owner),
-                        AttributeType = ScalarAttributeType.N
+                        AttributeType = ScalarAttributeType.S
                     }
                 },
                 KeySchema = new List<KeySchemaElement>()

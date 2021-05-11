@@ -49,7 +49,7 @@ namespace Integration.Tests.V1.PortfolioTests
             Id = Guid.NewGuid().ToString(),
             Name = "SeedPortfolio#1",
             Currency = "DKK",
-            Owner = 10010001
+            Owner = "2a42b10c-21ba-4e9e-968b-c723342c5ceb"
         };
 
         private async void Setup()

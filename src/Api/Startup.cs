@@ -29,6 +29,17 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
+            var authConfig = Configuration.GetSection("Auth");
+            var clientId = authConfig.GetValue<string>("ClientId");
+            var authority = authConfig.GetValue<string>("Authority");
+
+            services.AddAuthentication("Bearer")
+                .AddJwtBearer(options =>
+                {
+                    options.Audience = clientId;
+                    options.Authority = authority;
+                });
+
             services
                 .AddHttpContextAccessor()
                 .ConfigureMediatRPipeline()
@@ -41,6 +52,8 @@ namespace Api
                     options.DefaultApiVersion = new ApiVersion(1, 0);
                 })
                 .AddControllers();
+            
+            services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
@@ -55,6 +68,7 @@ namespace Api
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

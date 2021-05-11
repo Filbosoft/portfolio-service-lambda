@@ -12,7 +12,7 @@ namespace Business.Queries.PortfolioQueries
 {
     public class GetPortfoliosQuery : BusinessRequest, IRequestWrapper<IEnumerable<Portfolio>>
     { 
-        public long? OwnerId { get; set; }
+        public string OwnerId { get; set; }
     }
 
     public class GetPortfoliosQueryHandler : IHandlerWrapper<GetPortfoliosQuery, IEnumerable<Portfolio>>

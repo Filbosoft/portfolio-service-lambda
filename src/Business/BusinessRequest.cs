@@ -4,7 +4,7 @@ namespace Business
 {
     public class BusinessRequest
     {
-        public long RequestingUserId { get; set; }
+        public string RequestingUserId { get; set; }
         public DateTime RequestedAt { get; set; }
     }
 }

@@ -5,11 +5,13 @@ using Business.Commands.PortfolioCommands;
 using Business.Queries.PortfolioQueries;
 using Domain.Models;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [ApiVersion("1.0")]
     [Route("api/v{v:apiVersion}/[controller]")]
     [Produces("application/json")]
@@ -39,7 +41,7 @@ namespace Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Portfolio>>> Get([FromQuery] long? ownerId)
+        public async Task<ActionResult<IEnumerable<Portfolio>>> Get([FromQuery] string ownerId)
         {
             var query = new GetPortfoliosQuery 
             {
@@ -57,7 +59,6 @@ namespace Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Portfolio>> GetById([FromRoute] string id)
         {
-            LambdaLogger.Log($"Request: Portfolio/GetById, id: {id}");
             var query = new GetPortfolioByIdQuery { PortfolioId = id };
             var response = await _mediator.Send(query);
 

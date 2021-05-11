@@ -61,7 +61,7 @@ namespace Integration.Tests.V1.PortfolioTests
             {
                 Name = "portfolioName",
                 Currency = "DKK",
-                Owner = 10050001
+                Owner = "2812e65f-e43f-4fc4-8358-06095c8da1db"
             };
             var request = _factory.CreateBaseRequest();
             request.HttpMethod = HttpMethod.Post.ToString();

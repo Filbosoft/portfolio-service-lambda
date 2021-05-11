@@ -22,7 +22,7 @@ namespace DataAccess.Repositories
             return portfolio;
         }
 
-        public async Task<Portfolio> GetPortfolioAsync(string id, long ownerId)
+        public async Task<Portfolio> GetPortfolioAsync(string id, string ownerId)
         {
             var portfolio = await _context.LoadAsync<Portfolio>(id, ownerId);
             return portfolio;
@@ -41,7 +41,7 @@ namespace DataAccess.Repositories
             return portfolio;
         }
 
-        public async Task<bool> DeletePortfolioAsync(string id, long ownerId)
+        public async Task<bool> DeletePortfolioAsync(string id, string ownerId)
         {
             await _context.DeleteAsync<Portfolio>(id, ownerId);
             return true;

@@ -15,9 +15,8 @@ namespace Domain.Models
         [DynamoDBProperty]
         public string Name { get; set; }
         [Required]
-        [Range(1,long.MaxValue)]
         [DynamoDBProperty]
-        public long Owner { get; set; }
+        public string Owner { get; set; }
         [Required]
         [DynamoDBProperty]
         public string Currency { get; set; }

@@ -54,7 +54,7 @@ namespace Integration.Tests.V1.PortfolioTests
             {
                 Name = Guid.NewGuid().ToString(),
                 Currency = "DKK",
-                Owner = 1
+                Owner = "c90d634e-a9f9-460f-9f23-e595ab9f668a"
             };
 
             _request.Body = JsonSerializer.Serialize(createPortfolioCommand);
@@ -99,8 +99,8 @@ namespace Integration.Tests.V1.PortfolioTests
         {
             get
             {
-                yield return new Object[] { new CreatePortfolioCommand { Currency = "DKK", Owner = 0 } };
-                yield return new Object[] { new CreatePortfolioCommand { Name = "PortfolioName", Owner = 0 } };
+                yield return new Object[] { new CreatePortfolioCommand { Currency = "DKK", Owner = "3932e81a-0417-4ee6-bc30-0b27d7f5e169" } };
+                yield return new Object[] { new CreatePortfolioCommand { Name = "PortfolioName", Owner = "3932e81a-0417-4ee6-bc30-0b27d7f5e169" } };
                 yield return new Object[] { new CreatePortfolioCommand { Name = "PortfolioName", Currency = "DKK" } };
             }
         }

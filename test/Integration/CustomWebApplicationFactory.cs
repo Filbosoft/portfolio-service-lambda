@@ -17,7 +17,7 @@ namespace Integration
         private IConfiguration Configuration;
         public readonly IDynamoDBContext DbContext;
         public readonly IAmazonDynamoDB Db;
-        private readonly string _baseRequestString = File.ReadAllText("RequestBase.json");
+        private static readonly string _baseRequestString = File.ReadAllText("RequestBase.json");
         public CustomWebApplicationFactory()
         {
             var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Testing";
@@ -63,6 +63,14 @@ namespace Integration
         //     return client;
         // }
         public APIGatewayProxyRequest CreateBaseRequest()
+        {
+            var baseRequest = JsonSerializer.Deserialize<APIGatewayProxyRequest>(_baseRequestString,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            return baseRequest;
+        }
+
+        public static APIGatewayProxyRequest CreateBaseRequestV2()
         {
             var baseRequest = JsonSerializer.Deserialize<APIGatewayProxyRequest>(_baseRequestString,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });

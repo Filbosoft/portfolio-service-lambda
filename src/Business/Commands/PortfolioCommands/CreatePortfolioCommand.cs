@@ -17,8 +17,7 @@ namespace Business.Commands.PortfolioCommands
         [Required]
         public string Currency { get; set; }
         [Required]
-        [Range(1,long.MaxValue)]
-        public long Owner { get; set; }
+        public string Owner { get; set; }
     }
 
     public class CreatePortfolioCommandHandler : IHandlerWrapper<CreatePortfolioCommand, Portfolio>

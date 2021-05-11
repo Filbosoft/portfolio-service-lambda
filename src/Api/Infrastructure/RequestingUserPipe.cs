@@ -17,11 +17,13 @@ namespace Api.Infrastructure
         }
         public async Task<TOut> Handle(TIn request, CancellationToken cancellationToken, RequestHandlerDelegate<TOut> next)
         {
-            // var userId = _httpContext.User.Claims
-            //     .FirstOrDefault(x => x.Type.Equals(ClaimTypes.NameIdentifier))
-            //     .Value;
-
-            if (request is BusinessRequest br) br.RequestingUserId = 1;
+            if (request is BusinessRequest br) {
+                var userId = _httpContext.User.Claims
+                .FirstOrDefault(x => x.Type.Equals(ClaimTypes.NameIdentifier))
+                .Value;
+                
+                br.RequestingUserId = userId;
+            } 
 
             return await next();
         }

@@ -61,7 +61,7 @@ namespace Integration.Tests.V1.OrderTests
             Id = Guid.NewGuid().ToString(),
             Name = "SeedPortfolio#1",
             Currency = "DKK",
-            Owner = 10060001
+            Owner = "f753fa93-a43a-444c-b059-bd0c06440891"
         };
 
         private async void Setup()

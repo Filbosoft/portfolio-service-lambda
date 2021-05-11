@@ -19,7 +19,7 @@ namespace Integration.Tests.V1.PortfolioTests
         private readonly LambdaEntryPoint _entryPoint;
         private readonly TestLambdaContext _context;
         private readonly APIGatewayProxyRequest _request;
-        private readonly IDynamoDBContext _db;
+        private readonly IDynamoDBContext _dbContext;
 
         private const string PORTFOLIO_URI = "api/v1/portfolios";
 
@@ -28,14 +28,14 @@ namespace Integration.Tests.V1.PortfolioTests
             _entryPoint = new LambdaEntryPoint();
             _context = new TestLambdaContext();
             
-            _request = factory.CreateBaseRequest();
+            _request = CustomWebApplicationFactory<Startup>.CreateBaseRequestV2();
             _request.Path = PORTFOLIO_URI;
             _request.PathParameters = new Dictionary<string, string>
             {
                 {"proxy", PORTFOLIO_URI}
             };
 
-            _db = factory.GetDbContext();
+            _dbContext = factory.GetDbContext();
             factory.Dispose();
 
             Setup();
@@ -43,7 +43,7 @@ namespace Integration.Tests.V1.PortfolioTests
 
         public void Dispose()
         {
-            _db.Dispose();
+            _dbContext.Dispose();
         }
 
         /**
@@ -51,8 +51,8 @@ namespace Integration.Tests.V1.PortfolioTests
         * Id prefix: 1003
         **/
 
-        public const int UserWithContentId = 10030001;
-        public const int UserWithoutContentId = 10030002;
+        public const string UserWithContentId = "2fc366cd-5616-4503-b065-a228b50b60e5";
+        public const string UserWithoutContentId = "457f4738-60fc-4ac6-a701-3fa89900e2ce";
         public static Portfolio Portfolio1 = new Portfolio
         {
             Id = Guid.NewGuid().ToString(),
@@ -86,7 +86,7 @@ namespace Integration.Tests.V1.PortfolioTests
                 Portfolio3
             };
 
-            var batchWriteOperation = _db.CreateBatchWrite<Portfolio>();
+            var batchWriteOperation = _dbContext.CreateBatchWrite<Portfolio>();
             batchWriteOperation.AddPutItems(seedPortfolios);
 
             await batchWriteOperation.ExecuteAsync();

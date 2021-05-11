@@ -10,7 +10,7 @@ namespace Domain.Repositories
         Task<Portfolio> CreatePortfolioAsync(Portfolio portfolio);
         Task<Portfolio> UpdatePortfolioAsync(Portfolio portfolio);
         Task<IEnumerable<Portfolio>> GetPortfoliosAsync(IEnumerable<ScanCondition> conditions);
-        Task<Portfolio> GetPortfolioAsync(string id, long ownerId);
-        Task<bool> DeletePortfolioAsync(string id, long ownerId);
+        Task<Portfolio> GetPortfolioAsync(string id, string ownerId);
+        Task<bool> DeletePortfolioAsync(string id, string ownerId);
     }
 }

@@ -42,7 +42,7 @@ namespace Integration.Tests.V1.OrderTests
             Id = Guid.NewGuid().ToString(),
             Name = "SeedPortfolio#1",
             Currency = "DKK",
-            Owner = 10070001,
+            Owner = "35636f2f-ef16-4df6-8ec4-41db9714f6a0",
             Orders = new List<Order>
             {
                 new Order {Id = Guid.NewGuid().ToString(), Type = OrderType.Buy, Status = OrderStatus.Active, AssetId = ASSET1_ID, AssetType = AssetType.Stock, Quantity = 10, Price = 150.55M, Currency = "DKK", CreatedAt = DateTime.UtcNow.ToDbDateTime(), ExpiresAt = DateTime.UtcNow.AddDays(1).ToDbDateTime() },
@@ -58,7 +58,7 @@ namespace Integration.Tests.V1.OrderTests
             Id = Guid.NewGuid().ToString(),
             Name = "SeedPortfolio#1",
             Currency = "DKK",
-            Owner = 10070001,
+            Owner = "35636f2f-ef16-4df6-8ec4-41db9714f6a0",
             Orders = new List<Order>
             {
                 new Order {Id = Guid.NewGuid().ToString(), Type = OrderType.Buy, Status = OrderStatus.Cancelled, AssetId = ASSET3_ID, AssetType = AssetType.FX, Quantity = 1000, Price = 150.55M, Currency = "DKK", CreatedAt = DateTime.UtcNow.ToDbDateTime(), ExpiresAt = DateTime.UtcNow.AddDays(1).ToDbDateTime() },
