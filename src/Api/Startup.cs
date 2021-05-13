@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Api.Infrastructure;
+﻿using Api.Infrastructure;
 using Business;
 using DataAccess;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace Api
 {
@@ -29,15 +24,14 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
-            var authConfig = Configuration.GetSection("Auth");
-            var clientId = authConfig.GetValue<string>("ClientId");
-            var authority = authConfig.GetValue<string>("Authority");
+            var authOptions = Configuration.GetSection("Auth")
+                .Get<JwtBearerOptions>();
 
             services.AddAuthentication("Bearer")
-                .AddJwtBearer(options =>
+                .AddJwtBearer(options => 
                 {
-                    options.Audience = clientId;
-                    options.Authority = authority;
+                    options.Audience = authOptions.Audience;
+                    options.Authority = authOptions.Authority;
                 });
 
             services

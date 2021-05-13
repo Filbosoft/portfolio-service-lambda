@@ -4,6 +4,7 @@ namespace Domain.Enums
     {
         Active,
         Completed,
-        Cancelled
+        Cancelled,
+        Expired
     }
 }
