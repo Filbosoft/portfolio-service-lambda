@@ -12,89 +12,89 @@ using Xunit;
 
 namespace Integration.Tests.V1.PortfolioTests
 {
-    public class DeletePortfolioTests : IClassFixture<CustomWebApplicationFactory<Startup>>, IDisposable
-    {
-        private readonly LambdaEntryPoint _entryPoint;
-        private readonly TestLambdaContext _context;
-        private readonly APIGatewayProxyRequest _request;
-        private readonly IDynamoDBContext _db;
+    // public class DeletePortfolioTests : IClassFixture<CustomWebApplicationFactory<Startup>>, IDisposable
+    // {
+    //     private readonly LambdaEntryPoint _entryPoint;
+    //     private readonly TestLambdaContext _context;
+    //     private readonly APIGatewayProxyRequest _request;
+    //     private readonly IDynamoDBContext _db;
 
-        private const string PORTFOLIO_URI = "api/v1/portfolios";
+    //     private const string PORTFOLIO_URI = "api/v1/portfolios";
 
-        public DeletePortfolioTests(CustomWebApplicationFactory<Startup> factory)
-        {
-            _entryPoint = new LambdaEntryPoint();
-            _context = new TestLambdaContext();
+    //     public DeletePortfolioTests(CustomWebApplicationFactory<Startup> factory)
+    //     {
+    //         _entryPoint = new LambdaEntryPoint();
+    //         _context = new TestLambdaContext();
 
-            _request = factory.CreateBaseRequest();
-            _request.HttpMethod = HttpMethod.Delete.ToString();
+    //         _request = factory.CreateBaseRequest();
+    //         _request.HttpMethod = HttpMethod.Delete.ToString();
 
-            _db = factory.GetDbContext();
+    //         _db = factory.GetDbContext();
 
-            Setup();
-        }
+    //         Setup();
+    //     }
 
-        public void Dispose()
-        {
-            _db.Dispose();
-        }
+    //     public void Dispose()
+    //     {
+    //         _db.Dispose();
+    //     }
 
-        /**
-        * * Seed values
-        * Id prefix: 1000
-        **/
+    //     /**
+    //     * * Seed values
+    //     * Id prefix: 1000
+    //     **/
 
-        private readonly Portfolio Portfolio1 = new Portfolio
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = "SeedPortfolio#1",
-            Currency = "DKK",
-            Owner = "edb3f202-2712-4455-80d1-79f27f1d6bdd"
-        };
+    //     private readonly Portfolio Portfolio1 = new Portfolio
+    //     {
+    //         Id = Guid.NewGuid().ToString(),
+    //         Name = "SeedPortfolio#1",
+    //         Currency = "DKK",
+    //         Owner = "edb3f202-2712-4455-80d1-79f27f1d6bdd"
+    //     };
 
-        private async void Setup()
-        {
-            await _db.SaveAsync<Portfolio>(Portfolio1);
-        }
+    //     private async void Setup()
+    //     {
+    //         await _db.SaveAsync<Portfolio>(Portfolio1);
+    //     }
 
-        [Fact]
-        public async void DeletePortfolio_withValidId_ShouldReturnSuccessfully()
-        {
-            //Given
-            var uri = $"{PORTFOLIO_URI}/{Portfolio1.Id}";
+    //     [Fact]
+    //     public async void DeletePortfolio_withValidId_ShouldReturnSuccessfully()
+    //     {
+    //         //Given
+    //         var uri = $"{PORTFOLIO_URI}/{Portfolio1.Id}";
 
-            _request.Path = uri;
-            _request.PathParameters = new Dictionary<string, string>
-            {
-                {"proxy", uri}
-            };
-
-
-            //When
-            var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
-
-            //Then
-            httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
-        }
-
-        [Fact]
-        public async void DeletePortfolio_withInvalidId_ShouldReturnSuccessfully()
-        {
-            //Given
-            var uri = $"{PORTFOLIO_URI}/{Guid.NewGuid()}";
-
-            _request.Path = uri;
-            _request.PathParameters = new Dictionary<string, string>
-            {
-                {"proxy", uri}
-            };
+    //         _request.Path = uri;
+    //         _request.PathParameters = new Dictionary<string, string>
+    //         {
+    //             {"proxy", uri}
+    //         };
 
 
-            //When
-            var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
+    //         //When
+    //         var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
 
-            //Then
-            httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
-        }
-    }
+    //         //Then
+    //         httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
+    //     }
+
+    //     [Fact]
+    //     public async void DeletePortfolio_withInvalidId_ShouldReturnSuccessfully()
+    //     {
+    //         //Given
+    //         var uri = $"{PORTFOLIO_URI}/{Guid.NewGuid()}";
+
+    //         _request.Path = uri;
+    //         _request.PathParameters = new Dictionary<string, string>
+    //         {
+    //             {"proxy", uri}
+    //         };
+
+
+    //         //When
+    //         var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
+
+    //         //Then
+    //         httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
+    //     }
+    // }
 }
