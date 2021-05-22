@@ -9,7 +9,7 @@ namespace Business.MappingProfiles
         public PortfolioMappingProfile()
         {
             CreateMap<CreatePortfolioCommand, PortfolioEntity>();
-            CreateMap<UpdatePortfolioCommand, PortfolioEntity>();
+            // CreateMap<UpdatePortfolioCommand, PortfolioEntity>();
         }
     }
 }
