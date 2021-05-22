@@ -9,77 +9,69 @@ using Amazon.Lambda.APIGatewayEvents;
 using System.Text.Json;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2;
+using Amazon.Extensions.CognitoAuthentication;
+using Integration.Utilities;
+using Amazon.CognitoIdentityProvider;
+using Amazon.Runtime;
+using System.Threading.Tasks;
+using System.Net.Http;
 
 namespace Integration
 {
     public class CustomWebApplicationFactory<TStartup> : WebApplicationFactory<Startup>, IDisposable
     {
         private IConfiguration Configuration;
-        public readonly IDynamoDBContext DbContext;
-        public readonly IAmazonDynamoDB Db;
-        private static readonly string _baseRequestString = File.ReadAllText("RequestBase.json");
+        private CognitoTestConfig CognitoTestConfig;
+
         public CustomWebApplicationFactory()
         {
+            /***
+            * Gets the configuration from the appsettings.Testing.json placed in the Api/conf folder.
+            ***/
             var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Testing";
             Configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
+                .AddJsonFile($"appsettings.{env}.json", optional: false)
                 .Build();
 
-            Db = GetScopedService<IAmazonDynamoDB>();
-            DbContext = GetScopedService<IDynamoDBContext>();
+            CognitoTestConfig = GetCognitoTestConfig();
         }
 
         public new void Dispose()
         {
-            Db.Dispose();
-            DbContext.Dispose();
-            Server.Dispose();
-
             base.Dispose();
         }
 
-        // protected override void ConfigureWebHost(IWebHostBuilder builder)
-        // {
-        //     builder
-        //         .UseEnvironment("Testing")
-        //         .ConfigureAppConfiguration((ContextBoundObject, config) =>
-        //         {
-        //             config
-        //                 .AddConfiguration(Configuration);
-        //         })
-        //         .ConfigureServices(services =>
-        //         {
-        //             services
-        //                 .ReplaceServicesWithTestServices();
-        //         });
-        // }
-
-        // public HttpClient CreateAuthorizedClient()
-        // {
-        //     var client = base.CreateClient();
-        //     var accessToken = Configuration.GetValue<string>("Authentication:testUserToken");
-        //     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
-
-        //     return client;
-        // }
-        public APIGatewayProxyRequest CreateBaseRequest()
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            var baseRequest = JsonSerializer.Deserialize<APIGatewayProxyRequest>(_baseRequestString,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            builder
+            .UseEnvironment("Testing")
+            .ConfigureServices(services =>
+            {
 
-            return baseRequest;
+            });
         }
 
-        public static APIGatewayProxyRequest CreateBaseRequestV2()
+        private CognitoTestConfig GetCognitoTestConfig()
         {
-            var baseRequest = JsonSerializer.Deserialize<APIGatewayProxyRequest>(_baseRequestString,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var cognitoTestConfig = Configuration.GetSection("Cognito")
+                .Get<CognitoTestConfig>();
 
-            return baseRequest;
+            return cognitoTestConfig;
         }
 
-        public IAmazonDynamoDB GetDb() => Db;
-        public IDynamoDBContext GetDbContext() => DbContext;
+        public IAmazonDynamoDB GetDynamoDB()
+        {
+            var db = GetScopedService<IAmazonDynamoDB>();
+
+            return db;
+        }
+
+        public IDynamoDBContext GetDynamoDBContext()
+        {
+            var dbContext = GetScopedService<IDynamoDBContext>();
+
+            return dbContext;
+        }
 
         public T GetScopedService<T>()
         {
@@ -87,6 +79,42 @@ namespace Integration
             var scope = scopeFactory.CreateScope();
 
             return scope.ServiceProvider.GetService<T>();
+        }
+
+        public HttpClient CreateAuthorizedClient()
+        {
+            var client = base.CreateClient();
+            var accessToken = GetTestUserToken().Result;
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            return client;
+        }
+
+        public async Task<string> GetTestUserToken()
+        {
+            var user = GetTestUser(CognitoTestConfig);
+            var authRequest = new InitiateSrpAuthRequest{Password = CognitoTestConfig.TestUserPassword};
+
+            var authResponse = await user.StartWithSrpAuthAsync(authRequest).ConfigureAwait(false);
+            var token = authResponse.AuthenticationResult.IdToken;
+
+            return token;
+        }
+
+        private CognitoUser GetTestUser(CognitoTestConfig config)
+        {            
+            var provider = new AmazonCognitoIdentityProviderClient(new AnonymousAWSCredentials());
+            var userPool = new CognitoUserPool(
+                config.UserPoolId,
+                config.ClientId,
+                provider);
+            var user = new CognitoUser(
+                config.TestUsername,
+                config.ClientId,
+                userPool,
+                provider);
+
+            return user;
         }
     }
 }

@@ -9,9 +9,9 @@ namespace Integration.Utilities
 {
     public static class HttpSerializer
     {
-        public static T GetDeserializedResponseBody<T>(this APIGatewayProxyResponse httpResponse)
+        public static async Task<T> GetDeserializedResponseBodyAsync<T>(this HttpResponseMessage httpResponse)
         {
-            var responseBody = httpResponse.Body;
+            var responseBody = await httpResponse.Content.ReadAsStringAsync();
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,

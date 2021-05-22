@@ -6,7 +6,6 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.TestUtilities;
 using Api;
-using Domain.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Xunit;

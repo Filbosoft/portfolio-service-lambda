@@ -18,16 +18,11 @@ namespace Integration.Tests.V1.PortfolioTests
 {
     public class CreatePortfolioTests : IClassFixture<CustomWebApplicationFactory<Startup>>, IDisposable
     {
-        private readonly LambdaEntryPoint _entryPoint;
-        private readonly TestLambdaContext _context;
-        private readonly APIGatewayProxyRequest _request;
         private readonly IDynamoDBContext _db;
         
         private const string PORTFOLIO_URI = "api/v1/portfolios";
         public CreatePortfolioTests(CustomWebApplicationFactory<Startup> factory)
         {
-            _entryPoint = new LambdaEntryPoint();
-            _context = new TestLambdaContext();
 
             _request = factory.CreateBaseRequest();
             _request.HttpMethod = HttpMethod.Post.ToString();
