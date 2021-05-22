@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 
-namespace DBMigrationTool
+namespace Database
 {
     class Program
     {
@@ -27,6 +27,7 @@ namespace DBMigrationTool
             var upOrDown = arguments[0];
             if (upOrDown.ToUpper().Equals("UP")) Up(client);
             else if (upOrDown.ToUpper().Equals("DOWN")) Down(client);
+            Console.WriteLine("Migration complete");
         }
 
         private static bool ValidateRequest(string[] args)

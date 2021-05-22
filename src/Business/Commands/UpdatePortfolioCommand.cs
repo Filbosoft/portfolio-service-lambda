@@ -2,12 +2,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Business.Commands.Common;
 using Business.Wrappers;
-using Domain.Models;
-using Domain.Repositories;
+using Conditus.Trader.Domain.Models;
 
-namespace Business.Commands.PortfolioCommands
+namespace Business.Commands
 {
-    public class UpdatePortfolioCommand : UpdateCommand, IRequestWrapper<Portfolio>
+    public class UpdatePortfolioCommand : UpdateCommand, IRequestWrapper<PortfolioDetail>
     {
         public string Id { get; set; }
         public string Name { get; set; }
@@ -15,7 +14,7 @@ namespace Business.Commands.PortfolioCommands
         public string Owner { get; set; }
     }
 
-    public class UpdatePortfolioCommandHandler : IHandlerWrapper<UpdatePortfolioCommand, Portfolio>
+    public class UpdatePortfolioCommandHandler : IHandlerWrapper<UpdatePortfolioCommand, PortfolioDetail>
     {
         private readonly IPortfolioRepository _portfolioRepository;        
 
@@ -23,17 +22,17 @@ namespace Business.Commands.PortfolioCommands
         {
             _portfolioRepository = portfolioRepository;
         }
-        public async Task<BusinessResponse<Portfolio>> Handle(UpdatePortfolioCommand request, CancellationToken cancellationToken)
+        public async Task<BusinessResponse<PortfolioDetail>> Handle(UpdatePortfolioCommand request, CancellationToken cancellationToken)
         {
             var entity = await _portfolioRepository.GetPortfolioAsync(request.Id, request.RequestingUserId);
             if (entity == null)
-                return BusinessResponse.Fail<Portfolio>($"No portfolio with the id of {request.Id} was found");
+                return BusinessResponse.Fail<PortfolioDetail>($"No portfolio with the id of {request.Id} was found");
 
-            entity = request.TransferUpdatedValues<Portfolio>(entity);
+            entity = request.TransferUpdatedValues<PortfolioDetail>(entity);
             
             await _portfolioRepository.UpdatePortfolioAsync(entity);
 
-            return BusinessResponse.Ok<Portfolio>(entity, "Portfolio updated!");
+            return BusinessResponse.Ok<PortfolioDetail>(entity, "Portfolio updated!");
         }
     }
 }

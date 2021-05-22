@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Amazon.Lambda.Core;
-using Business.Commands.PortfolioCommands;
-using Business.Queries.PortfolioQueries;
-using Domain.Models;
+using Business.Commands;
+using Business.Queries;
+using Conditus.Trader.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +25,7 @@ namespace Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Portfolio>> CreatePortfolio([FromBody] CreatePortfolioCommand command)
+        public async Task<ActionResult<PortfolioDetail>> CreatePortfolio([FromBody] CreatePortfolioCommand command)
         {
             var response = await _mediator.Send(command);
 
@@ -41,7 +41,7 @@ namespace Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Portfolio>>> Get([FromQuery] string ownerId)
+        public async Task<ActionResult<IEnumerable<PortfolioOverview>>> Get([FromQuery] string ownerId)
         {
             var query = new GetPortfoliosQuery 
             {
@@ -57,7 +57,7 @@ namespace Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Portfolio>> GetById([FromRoute] string id)
+        public async Task<ActionResult<PortfolioDetail>> GetById([FromRoute] string id)
         {
             var query = new GetPortfolioByIdQuery { PortfolioId = id };
             var response = await _mediator.Send(query);
@@ -72,7 +72,7 @@ namespace Api.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Portfolio>> Put([FromRoute] string id, [FromBody] UpdatePortfolioCommand command)
+        public async Task<ActionResult<PortfolioDetail>> Put([FromRoute] string id, [FromBody] UpdatePortfolioCommand command)
         {
             command.Id = id;
             var response = await _mediator.Send(command);

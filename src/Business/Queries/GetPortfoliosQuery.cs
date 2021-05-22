@@ -5,17 +5,17 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using AutoMapper;
 using Business.Wrappers;
-using Domain.Repositories;
-using Domain.Models;
+using Conditus.Trader.Domain.Models;
+using Conditus.Trader.Domain.Entities;
 
-namespace Business.Queries.PortfolioQueries
+namespace Business.Queries
 {
-    public class GetPortfoliosQuery : BusinessRequest, IRequestWrapper<IEnumerable<Portfolio>>
+    public class GetPortfoliosQuery : BusinessRequest, IRequestWrapper<IEnumerable<PortfolioOverview>>
     { 
         public string OwnerId { get; set; }
     }
 
-    public class GetPortfoliosQueryHandler : IHandlerWrapper<GetPortfoliosQuery, IEnumerable<Portfolio>>
+    public class GetPortfoliosQueryHandler : IHandlerWrapper<GetPortfoliosQuery, IEnumerable<PortfolioOverview>>
     {
         private readonly IPortfolioRepository _portfolioRepository;
         private readonly IMapper _mapper;
@@ -26,16 +26,16 @@ namespace Business.Queries.PortfolioQueries
             _mapper = mapper;
         }
 
-        public async Task<BusinessResponse<IEnumerable<Portfolio>>> Handle(GetPortfoliosQuery request, CancellationToken cancellationToken)
+        public async Task<BusinessResponse<IEnumerable<PortfolioOverview>>> Handle(GetPortfoliosQuery request, CancellationToken cancellationToken)
         {
             var scanConditions = new List<ScanCondition>();
 
             if (request.OwnerId != null)
-                scanConditions.Add(new ScanCondition(nameof(Portfolio.Owner), ScanOperator.Equal, request.OwnerId));
+                scanConditions.Add(new ScanCondition(nameof(PortfolioEntity.Owner), ScanOperator.Equal, request.OwnerId));
 
             var portfolios = await _portfolioRepository.GetPortfoliosAsync(scanConditions);
 
-            return BusinessResponse.Ok<IEnumerable<Portfolio>>(portfolios);
+            return BusinessResponse.Ok<IEnumerable<PortfolioOverview>>(portfolios);
         }
     }
 }

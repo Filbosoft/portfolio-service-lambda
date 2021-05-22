@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <PackageReference Include="Conditus.Trader.Domain" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>

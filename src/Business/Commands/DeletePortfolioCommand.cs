@@ -2,9 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
 using Business.Wrappers;
-using Domain.Repositories;
 
-namespace Business.Commands.PortfolioCommands
+namespace Business.Commands
 {
     public class DeletePortfolioCommand : BusinessRequest, IRequestWrapper<bool>
     {

@@ -1,6 +1,6 @@
 using AutoMapper;
-using Business.Commands.PortfolioCommands;
-using Domain.Models;
+using Business.Commands;
+using Conditus.Trader.Domain.Entities;
 
 namespace Business.MappingProfiles
 {
@@ -8,8 +8,8 @@ namespace Business.MappingProfiles
     {
         public PortfolioMappingProfile()
         {
-            CreateMap<CreatePortfolioCommand, Portfolio>();
-            CreateMap<UpdatePortfolioCommand, Portfolio>();
+            CreateMap<CreatePortfolioCommand, PortfolioEntity>();
+            CreateMap<UpdatePortfolioCommand, PortfolioEntity>();
         }
     }
 }

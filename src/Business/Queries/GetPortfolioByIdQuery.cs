@@ -2,16 +2,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Business.Wrappers;
 using Domain.Repositories;
-using Domain.Models;
+using Conditus.Trader.Domain.Models;
 
-namespace Business.Queries.PortfolioQueries
+namespace Business.Queries
 {
-    public class GetPortfolioByIdQuery : BusinessRequest, IRequestWrapper<Portfolio>
+    public class GetPortfolioByIdQuery : BusinessRequest, IRequestWrapper<PortfolioDetail>
     { 
         public string PortfolioId { get; set; }
     }
 
-    public class GetPortfolioByIdQueryHandler : IHandlerWrapper<GetPortfolioByIdQuery, Portfolio>
+    public class GetPortfolioByIdQueryHandler : IHandlerWrapper<GetPortfolioByIdQuery, PortfolioDetail>
     {
         private readonly IPortfolioRepository _portfolioRepository;
 
@@ -20,14 +20,14 @@ namespace Business.Queries.PortfolioQueries
             _portfolioRepository = portfolioRepository;
         }
 
-        public async Task<BusinessResponse<Portfolio>> Handle(GetPortfolioByIdQuery request, CancellationToken cancellationToken)
+        public async Task<BusinessResponse<PortfolioDetail>> Handle(GetPortfolioByIdQuery request, CancellationToken cancellationToken)
         {
             var portfolio = await _portfolioRepository.GetPortfolioAsync(request.PortfolioId, request.RequestingUserId);
 
             if (portfolio == null)
-                return BusinessResponse.Fail<Portfolio>($"No portfolio with the id of {request.PortfolioId} was found");
+                return BusinessResponse.Fail<PortfolioDetail>($"No portfolio with the id of {request.PortfolioId} was found");
 
-            return BusinessResponse.Ok<Portfolio>(portfolio);
+            return BusinessResponse.Ok<PortfolioDetail>(portfolio);
         }
     }
 }

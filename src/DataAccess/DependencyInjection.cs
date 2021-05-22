@@ -2,7 +2,6 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using DataAccess.Repositories;
-using Domain.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -42,9 +41,9 @@ namespace DataAccess
 
         private static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-            services
-                .AddScoped<IPortfolioRepository, PortfolioRepository>()
-                .AddScoped<IOrderRepository, OrderRepository>();
+            // services
+            //     .AddScoped<IPortfolioRepository, PortfolioRepository>()
+            //     .AddScoped<IOrderRepository, OrderRepository>();
 
             return services;
         }

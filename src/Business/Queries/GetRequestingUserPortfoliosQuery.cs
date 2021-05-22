@@ -2,16 +2,15 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Business.Wrappers;
-using Domain.Repositories;
-using Domain.Models;
+using Conditus.Trader.Domain.Models;
 using MediatR;
 
-namespace Business.Queries.PortfolioQueries
+namespace Business.Queries
 {
-    public class GetRequestingUserPortfoliosQuery : BusinessRequest, IRequestWrapper<IEnumerable<Portfolio>>
+    public class GetRequestingUserPortfoliosQuery : BusinessRequest, IRequestWrapper<IEnumerable<PortfolioOverview>>
     { }
 
-    public class GetRequestingUserPortfoliosQueryHandler : IHandlerWrapper<GetRequestingUserPortfoliosQuery, IEnumerable<Portfolio>>
+    public class GetRequestingUserPortfoliosQueryHandler : IHandlerWrapper<GetRequestingUserPortfoliosQuery, IEnumerable<PortfolioOverview>>
     {
         private readonly IPortfolioRepository _portfolioRepository;
         private readonly IMediator _mediator;
@@ -20,17 +19,17 @@ namespace Business.Queries.PortfolioQueries
             _portfolioRepository = portfolioRepository;
             _mediator = mediator;
         }
-        public async Task<BusinessResponse<IEnumerable<Portfolio>>> Handle(GetRequestingUserPortfoliosQuery request, CancellationToken cancellationToken)
+        public async Task<BusinessResponse<IEnumerable<PortfolioOverview>>> Handle(GetRequestingUserPortfoliosQuery request, CancellationToken cancellationToken)
         {
             var getPortfoliosRequest = new GetPortfoliosQuery { OwnerId = request.RequestingUserId };
             var queryResponse = await _mediator.Send(getPortfoliosRequest);
 
             if (queryResponse.IsError)
-                return BusinessResponse.Fail<IEnumerable<Portfolio>>(queryResponse.Message);
+                return BusinessResponse.Fail<IEnumerable<PortfolioOverview>>(queryResponse.Message);
             
             var userPortfolios = queryResponse.Data;
 
-            return BusinessResponse.Ok<IEnumerable<Portfolio>>(userPortfolios);
+            return BusinessResponse.Ok<IEnumerable<PortfolioOverview>>(userPortfolios);
         }
     }
 }
