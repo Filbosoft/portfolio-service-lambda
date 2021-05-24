@@ -23,5 +23,19 @@ namespace Integration.Seeds
                 new PortfolioAsset{Name = USD_STOCK.Name, Symbol = USD_STOCK.Symbol, Quantity = 10}
             }
         };
+
+        public static readonly PortfolioEntity NON_TESTUSER_PORTFOLIO = new PortfolioEntity
+        {
+            Id = "ec7ec42d-a6fd-476c-8bce-4a609ae67068",
+            Capital = 100000.90M,
+            Name = "Portfolio",
+            OwnerId = "04fb0290-43f1-4ab7-baee-e8daa0e8b5af",
+            CreatedAt = Convert.ToDateTime("2/5/2021 08:00:01 AM").ToUniversalTime(),
+            Assets = new List<PortfolioAsset>
+            {
+                new PortfolioAsset{Name = DKK_STOCK.Name, Symbol = DKK_STOCK.Symbol, Quantity = 10},
+                new PortfolioAsset{Name = USD_STOCK.Name, Symbol = USD_STOCK.Symbol, Quantity = 10}
+            }
+        };
     }
 }

@@ -1,14 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
-using System.Text.Json;
 using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.Lambda.APIGatewayEvents;
-using Amazon.Lambda.TestUtilities;
 using Api;
 using Business.Commands;
+using Business.Extensions;
 using Conditus.Trader.Domain.Entities;
 using Conditus.Trader.Domain.Models;
 using Database.Indexes;
@@ -69,33 +65,30 @@ namespace Integration.Tests.V1.PortfolioTests
                 nameof(PortfolioEntity.Id), 
                 newPortfolio.Id, 
                 LocalIndexes.PortfolioIdIndex);
+                
             dbPortfolio.Should().NotBeNull()
                 .And.BeEquivalentTo(createPortfolioCommand, options => options
                     .ExcludingMissingMembers());
         }
 
-        // [Theory]
-        // [MemberData(nameof(CreatePortfolioCommandsWithMissingValues))]
-        // public async void CreatePortfolio_withMissingValues_ShouldReturnBadRequest(CreatePortfolioCommand createPortfolioCommand)
-        // {
-        //     //Given
-        //     _request.Body = JsonSerializer.Serialize(createPortfolioCommand);
+        [Theory]
+        [MemberData(nameof(CreatePortfolioCommandsWithMissingValues))]
+        public async void CreatePortfolio_withMissingValues_ShouldReturnBadRequest(CreatePortfolioCommand createPortfolioCommand)
+        {
+            //When
+            var httpResponse = await _client.PostAsync(BASE_URL, HttpSerializer.GetStringContent(createPortfolioCommand));
 
-        //     //When
-        //     var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
+            //Then
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        }
 
-        //     //Then
-        //     httpResponse.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        // }
-
-        // public static IEnumerable<object[]> CreatePortfolioCommandsWithMissingValues
-        // {
-        //     get
-        //     {
-        //         yield return new Object[] { new CreatePortfolioCommand { Currency = "DKK", Owner = "3932e81a-0417-4ee6-bc30-0b27d7f5e169" } };
-        //         yield return new Object[] { new CreatePortfolioCommand { Name = "PortfolioName", Owner = "3932e81a-0417-4ee6-bc30-0b27d7f5e169" } };
-        //         yield return new Object[] { new CreatePortfolioCommand { Name = "PortfolioName", Currency = "DKK" } };
-        //     }
-        // }
+        public static IEnumerable<object[]> CreatePortfolioCommandsWithMissingValues
+        {
+            get
+            {
+                yield return new Object[] { new CreatePortfolioCommand { Name = "PortfolioName" } };
+                yield return new Object[] { new CreatePortfolioCommand { Capital = 100 } };
+            }
+        }
     }
 }

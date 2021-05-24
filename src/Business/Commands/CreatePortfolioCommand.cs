@@ -7,8 +7,6 @@ using Business.Wrappers;
 using System.Collections.Generic;
 using Conditus.Trader.Domain.Models;
 using Conditus.Trader.Domain.Entities;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.Model;
 using Conditus.DynamoDBMapper.Mappers;
 using Amazon.DynamoDBv2;
 
@@ -19,7 +17,7 @@ namespace Business.Commands
         [Required]
         public string Name { get; set; }
         [Required]
-        public decimal Capital { get; set; }
+        public decimal? Capital { get; set; }
     }
 
     public class CreatePortfolioCommandHandler : IHandlerWrapper<CreatePortfolioCommand, PortfolioDetail>

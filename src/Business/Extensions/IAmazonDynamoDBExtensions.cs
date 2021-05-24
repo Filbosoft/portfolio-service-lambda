@@ -5,11 +5,10 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Conditus.DynamoDBMapper.Mappers;
 
-namespace Integration.Utilities
+namespace Business.Extensions
 {
     public static class IAmazonDynamoDBExtensions
     {
@@ -35,12 +34,16 @@ namespace Integration.Utilities
             var response = await dynamoDB.QueryAsync(query);
             var item = response.Items
                 .FirstOrDefault();
+
+            if (item == null)
+                return default(T);
+
             var mappedItem = item.GetEntity<T>();
             
             return mappedItem;
         }
 
-        private static string GetTableName<T>()
+        public static string GetTableName<T>()
         {
             var type = typeof(T);
             var dynamoDBTableAttribute = type.GetCustomAttributes(typeof(DynamoDBTableAttribute), true)

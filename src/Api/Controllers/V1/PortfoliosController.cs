@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Business.Commands;
+using Business.Queries;
 using Conditus.Trader.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -57,16 +58,15 @@ namespace Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PortfolioDetail>> GetPortfolioById([FromRoute] string id)
         {
-            throw new NotImplementedException();
-            // var query = new GetPortfolioByIdQuery { PortfolioId = id };
-            // var response = await _mediator.Send(query);
+            var query = new GetPortfolioByIdQuery { PortfolioId = id };
+            var response = await _mediator.Send(query);
 
-            // if (response.IsError) 
-            //     return NotFound(response.Message);
+            if (response.IsError) 
+                return NotFound(response.Message);
 
-            // var portfolio = response.Data;
+            var portfolio = response.Data;
 
-            // return Ok(portfolio);
+            return Ok(portfolio);
         }
 
 
