@@ -11,7 +11,7 @@ namespace Api.Infrastructure
         public async Task<TOut> Handle(TIn request, CancellationToken cancellationToken, RequestHandlerDelegate<TOut> next)
         {
             if (request is BusinessRequest br) 
-                br.RequestedAt = DateTime.Now;
+                br.RequestedAt = DateTime.UtcNow;
 
             return await next();
         }

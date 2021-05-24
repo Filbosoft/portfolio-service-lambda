@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.TestUtilities;
@@ -10,6 +11,7 @@ using Api;
 using Business.Commands;
 using Conditus.Trader.Domain.Entities;
 using Conditus.Trader.Domain.Models;
+using Database.Indexes;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Integration.Utilities;
@@ -23,13 +25,12 @@ namespace Integration.Tests.V1.PortfolioTests
     public class CreatePortfolioTests : IClassFixture<CustomWebApplicationFactory<Startup>>, IDisposable
     {
         private readonly HttpClient _client;
-        private readonly IDynamoDBContext _db;
+        private readonly IAmazonDynamoDB _db;
         
-        private const string PORTFOLIO_URI = "api/v1/portfolios";
         public CreatePortfolioTests(CustomWebApplicationFactory<Startup> factory)
         {
             _client = factory.CreateAuthorizedClient();
-            _db = factory.GetDynamoDBContext();
+            _db = factory.GetDynamoDB();
         }
 
         public void Dispose()
@@ -63,7 +64,11 @@ namespace Integration.Tests.V1.PortfolioTests
                 newPortfolio.Id.Should().NotBeNullOrEmpty();
             }
 
-            var dbPortfolio = await _db.LoadAsync<PortfolioEntity>(TESTUSER_ID, newPortfolio.Id);
+            var dbPortfolio = await _db.LoadByLocalIndexAsync<PortfolioEntity>(
+                TESTUSER_ID, 
+                nameof(PortfolioEntity.Id), 
+                newPortfolio.Id, 
+                LocalIndexes.PortfolioIdIndex);
             dbPortfolio.Should().NotBeNull()
                 .And.BeEquivalentTo(createPortfolioCommand, options => options
                     .ExcludingMissingMembers());

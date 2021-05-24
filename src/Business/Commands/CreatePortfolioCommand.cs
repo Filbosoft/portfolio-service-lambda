@@ -9,6 +9,8 @@ using Conditus.Trader.Domain.Models;
 using Conditus.Trader.Domain.Entities;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
+using Conditus.DynamoDBMapper.Mappers;
+using Amazon.DynamoDBv2;
 
 namespace Business.Commands
 {
@@ -23,12 +25,12 @@ namespace Business.Commands
     public class CreatePortfolioCommandHandler : IHandlerWrapper<CreatePortfolioCommand, PortfolioDetail>
     {
         private readonly IMapper _mapper;
-        private readonly IDynamoDBContext _dbContext;
+        private readonly IAmazonDynamoDB _db;
 
-        public CreatePortfolioCommandHandler(IMapper mapper, IDynamoDBContext dbContext)
+        public CreatePortfolioCommandHandler(IMapper mapper, IAmazonDynamoDB db)
         {
             _mapper = mapper;
-            _dbContext = dbContext;
+            _db = db;
         }
 
         public async Task<BusinessResponse<PortfolioDetail>> Handle(CreatePortfolioCommand request, CancellationToken cancellationToken)
@@ -37,13 +39,8 @@ namespace Business.Commands
             entity.Id = Guid.NewGuid().ToString();
             entity.Assets = new List<PortfolioAsset>();
 
-            var dbRequest = new PutItemRequest
-            {
-                TableName = "Portfolios",
-                Item
-            };
-            await _dbContext.SaveAsync(entity);
-
+            var response = await _db.PutItemAsync("Portfolios", entity.GetAttributeValueMap());
+            
             var portfolioDetail = _mapper.Map<PortfolioDetail>(entity);
 
             return BusinessResponse.Ok<PortfolioDetail>(portfolioDetail, "Portfolio created!");
