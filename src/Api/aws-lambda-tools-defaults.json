@@ -9,7 +9,8 @@
   "region": "",
   "configuration": "Release",
   "framework": "netcoreapp3.1",
-  "s3-prefix": "Api/",
-  "template": "serverless.template",
+  "s3-bucket": "conditus-trader",
+  "s3-prefix": "portfolio-service/",
+  "template": "src/Api/serverless.template",
   "template-parameters": ""
 }

@@ -1,7 +1,7 @@
 # Technical doc
 
 ## Deploying
-dotnet lambda deploy-serverless portfolio-service --s3-bucket filbosoft-trader -t src/Api/serverless.template
+dotnet lambda deploy-serverless portfolio-service --s3-bucket conditus-trader -t src/Api/serverless.template --s3-prefix "portfolio-service/"
 
 - https://docs.aws.amazon.com/toolkit-for-visual-studio/latest/user-guide/lambda-cli-publish.html 
 

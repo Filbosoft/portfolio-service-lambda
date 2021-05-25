@@ -15,7 +15,7 @@
         "Timeout": 30,
         "Role": null,
         "Policies": [
-          "arn:aws:iam::494299113511:policy/FilbosoftTrader_PortfolioServices"
+          "arn:aws:iam::494299113511:policy/ConditusTrader_PortfolioService"
         ],
         "Events": {
           "ProxyResource": {
