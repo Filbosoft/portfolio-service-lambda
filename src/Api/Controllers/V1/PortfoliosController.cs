@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Business.Commands;
 using Business.Queries;
@@ -39,21 +40,24 @@ namespace Api.Controllers
             );
         }
 
-        // [HttpGet]
-        // public async Task<ActionResult<IEnumerable<PortfolioOverview>>> Get([FromQuery] string ownerId)
-        // {
-        //     var query = new GetPortfoliosQuery 
-        //     {
-        //         OwnerId = ownerId
-        //     };
-        //     var response = await _mediator.Send(query);
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<PortfolioOverview>>> GetPortfolios(
+            [FromQuery] string nameQuery,
+            [FromQuery] DateTime? createdFromDate)
+        {
+            var query = new GetPortfoliosQuery
+            {
+                NameQuery = nameQuery,
+                CreatedFromDate = createdFromDate
+            };
+            var response = await _mediator.Send(query);
 
-        //     if (response.IsError)
-        //         return BadRequest(response.Message);
+            if (response.IsError)
+                return BadRequest(response.Message);
 
-        //     var portfolios = response.Data;
-        //     return Ok(portfolios);
-        // }
+            var portfolios = response.Data;
+            return Ok(portfolios);
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<PortfolioDetail>> GetPortfolioById([FromRoute] string id)
@@ -61,7 +65,7 @@ namespace Api.Controllers
             var query = new GetPortfolioByIdQuery { PortfolioId = id };
             var response = await _mediator.Send(query);
 
-            if (response.IsError) 
+            if (response.IsError)
                 return NotFound(response.Message);
 
             var portfolio = response.Data;

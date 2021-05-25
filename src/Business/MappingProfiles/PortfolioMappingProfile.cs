@@ -15,13 +15,25 @@ namespace Business.MappingProfiles
                     opt => opt.MapFrom(src => src.RequestingUserId)
                 )
                 .ForMember(
+                    dest => dest.PortfolioName,
+                    opt => opt.MapFrom(src => src.Name)
+                )
+                .ForMember(
                     dest => dest.CreatedAt,
                     opt => opt.MapFrom(src => src.RequestedAt)
                 );
             // CreateMap<UpdatePortfolioCommand, PortfolioEntity>();
             
-            CreateMap<PortfolioEntity, PortfolioDetail>();
-            CreateMap<PortfolioEntity, PortfolioOverview>();
+            CreateMap<PortfolioEntity, PortfolioDetail>()
+                .ForMember(
+                    dest => dest.Name,
+                    opt => opt.MapFrom(src => src.PortfolioName)
+                );
+            CreateMap<PortfolioEntity, PortfolioOverview>()
+                .ForMember(
+                    dest => dest.Name,
+                    opt => opt.MapFrom(src => src.PortfolioName)
+                );
         }
     }
 }

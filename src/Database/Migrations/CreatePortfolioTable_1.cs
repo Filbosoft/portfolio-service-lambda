@@ -35,11 +35,6 @@ namespace Database
                     },
                     new AttributeDefinition
                     {
-                        AttributeName = "Name",
-                        AttributeType = ScalarAttributeType.S
-                    },
-                    new AttributeDefinition
-                    {
                         AttributeName = "OwnerId",
                         AttributeType = ScalarAttributeType.S
                     },
@@ -69,20 +64,6 @@ namespace Database
                             new KeySchemaElement
                             {
                                 AttributeName = "Id",
-                                KeyType = KeyType.RANGE
-                            }
-                        },
-                        Projection = new Projection{ProjectionType = ProjectionType.ALL}
-                    },
-                    new LocalSecondaryIndex
-                    {
-                        IndexName = LocalIndexes.PortfolioNameIndex,
-                        KeySchema = new List<KeySchemaElement>
-                        {
-                            partitionKey,
-                            new KeySchemaElement
-                            {
-                                AttributeName = "Name",
                                 KeyType = KeyType.RANGE
                             }
                         },

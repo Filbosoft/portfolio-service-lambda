@@ -1,169 +1,122 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.Lambda.APIGatewayEvents;
-using Amazon.Lambda.TestUtilities;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using Api;
+using Business.Extensions;
+using Conditus.Trader.Domain.Entities;
+using Conditus.Trader.Domain.Models;
 using FluentAssertions;
 using Integration.Utilities;
-using Microsoft.AspNetCore.Http;
 using Xunit;
+using Conditus.DynamoDBMapper.Mappers;
+
+using static Integration.Utilities.TestConstants;
+using static Integration.Seeds.PortfolioSeeds;
 
 namespace Integration.Tests.V1.PortfolioTests
 {
-    // public class GetPortfoliosTests : IClassFixture<CustomWebApplicationFactory<Startup>>, IDisposable
-    // {
-    //     private readonly LambdaEntryPoint _entryPoint;
-    //     private readonly TestLambdaContext _context;
-    //     private readonly APIGatewayProxyRequest _request;
-    //     private readonly IDynamoDBContext _dbContext;
+    public class GetPortfoliosTests : IClassFixture<CustomWebApplicationFactory<Startup>>, IDisposable
+    {
+        private readonly HttpClient _client;
+        private readonly IAmazonDynamoDB _db;
 
-    //     private const string PORTFOLIO_URI = "api/v1/portfolios";
+        public GetPortfoliosTests(CustomWebApplicationFactory<Startup> factory)
+        {
+            _client = factory.CreateAuthorizedClient();
+            _db = factory.GetDynamoDB();
 
-    //     public GetPortfoliosTests(CustomWebApplicationFactory<Startup> factory)
-    //     {
-    //         _entryPoint = new LambdaEntryPoint();
-    //         _context = new TestLambdaContext();
+            Setup();
+        }
+
+        public void Dispose()
+        {
+            _db.Dispose();
+        }
+
+        private async void Setup()
+        {
+
+            var seedPortfolios = new List<PortfolioEntity>
+            {
+                PORTFOLIO_WITH_ASSETS,
+                PORTFOLIO_WITH_PORTFOLIO_IN_NAME,
+                OLD_PORTFOLIO,
+                NON_TESTUSER_PORTFOLIO
+            };
+
+            var writeRequests = seedPortfolios
+                .Select(p => new PutRequest { Item = p.GetAttributeValueMap() })
+                .Select(p => new WriteRequest { PutRequest = p })
+                .ToList();
+
+            var batchWriteRequest = new BatchWriteItemRequest
+            {
+                RequestItems = new Dictionary<string, List<WriteRequest>>
+                {
+                    { IAmazonDynamoDBExtensions.GetDynamoDBTableName<PortfolioEntity>(), writeRequests }
+                }
+            };
+
+            await _db.BatchWriteItemAsync(batchWriteRequest);
+        }
+
+        [Fact]
+        public async void GetPortfolios_WithoutQueryParameters_ShouldReturnSeededUserPortfolios()
+        {
+            //Given
+            //Portfolios has been seeded
+
+            //When
+            var httpResponse = await _client.GetAsync(BASE_URL);
+
+            //Then
+            httpResponse.EnsureSuccessStatusCode();
+            var portfolios = await httpResponse.GetDeserializedResponseBodyAsync<IEnumerable<PortfolioOverview>>();
+
+            portfolios.Should().NotBeNullOrEmpty();
+        }
+
+        [Fact]
+        public async void GetPortfolios_WithNameQuery_ShouldReturnSeededUserPortfoliosWhereNameContainsNameQuery()
+        {
+            //Given
+            var query = $"?nameQuery={PORTFOLIO_WITH_PORTFOLIO_IN_NAME.PortfolioName}";
+            var uri = BASE_URL + query;
+
+            //When
+            var httpResponse = await _client.GetAsync(uri);
+
+            //Then
+            httpResponse.EnsureSuccessStatusCode();
+            var portfolios = await httpResponse.GetDeserializedResponseBodyAsync<IEnumerable<PortfolioOverview>>();
+
+            portfolios.Should().NotBeNullOrEmpty()
+                .And.OnlyContain(p => p.Name.Contains(PORTFOLIO_WITH_PORTFOLIO_IN_NAME.PortfolioName));
+        }
+
+        [Fact]
+        public async void GetPortfolios_WithCreatedFromDate_ShouldReturnSeededUserPortfoliosFilteredByCreatedFromDate()
+        {
+            //Given
+            var query = $"?createdFromDate={PORTFOLIO_WITH_ASSETS.CreatedAt}";
+            var uri = BASE_URL + query;
+
+            //When
+            var httpResponse = await _client.GetAsync(uri);
+
+            //Then
+            httpResponse.EnsureSuccessStatusCode();
+            var portfolios = await httpResponse.GetDeserializedResponseBodyAsync<IEnumerable<PortfolioOverview>>();
+
+            portfolios.Should().NotBeNullOrEmpty()
+                .And.NotContain(p => p.Id.Equals(OLD_PORTFOLIO.Id));
             
-    //         _request = CustomWebApplicationFactory<Startup>.CreateBaseRequestV2();
-    //         _request.Path = PORTFOLIO_URI;
-    //         _request.PathParameters = new Dictionary<string, string>
-    //         {
-    //             {"proxy", PORTFOLIO_URI}
-    //         };
+            var portfolioWithAssets = portfolios.FirstOrDefault(p => p.Id.Equals(PORTFOLIO_WITH_ASSETS.Id));
 
-    //         _dbContext = factory.GetDbContext();
-    //         factory.Dispose();
-
-    //         Setup();
-    //     }
-
-    //     public void Dispose()
-    //     {
-    //         _dbContext.Dispose();
-    //     }
-
-    //     /**
-    //     * * Seed values
-    //     * Id prefix: 1003
-    //     **/
-
-    //     public const string UserWithContentId = "2fc366cd-5616-4503-b065-a228b50b60e5";
-    //     public const string UserWithoutContentId = "457f4738-60fc-4ac6-a701-3fa89900e2ce";
-    //     public static Portfolio Portfolio1 = new Portfolio
-    //     {
-    //         Id = Guid.NewGuid().ToString(),
-    //         Name = "TestPortfolio1",
-    //         Currency = "DKK",
-    //         Owner = UserWithContentId
-    //     };
-
-    //     public static Portfolio Portfolio2 = new Portfolio
-    //     {
-    //         Id = Guid.NewGuid().ToString(),
-    //         Name = "TestPortfolio2",
-    //         Currency = "DKK",
-    //         Owner = UserWithContentId
-    //     };
-
-    //     public static Portfolio Portfolio3 = new Portfolio
-    //     {
-    //         Id = Guid.NewGuid().ToString(),
-    //         Name = "TestPortfolio3",
-    //         Currency = "DKK",
-    //         Owner = UserWithContentId
-    //     };
-
-    //     private async void Setup()
-    //     {
-    //         var seedPortfolios = new List<Portfolio>
-    //         {
-    //             Portfolio1,
-    //             Portfolio2,
-    //             Portfolio3
-    //         };
-
-    //         var batchWriteOperation = _dbContext.CreateBatchWrite<Portfolio>();
-    //         batchWriteOperation.AddPutItems(seedPortfolios);
-
-    //         await batchWriteOperation.ExecuteAsync();
-
-    //     }
-
-    //     [Fact]
-    //     public async void GetPortfolios_ShouldReturnSeededPortfolios()
-    //     {
-    //         //Given
-    //         //Portfolios has been seeded
-
-    //         //When
-    //         var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
-
-    //         //Then
-    //         httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
-    //         var portfolios = httpResponse.GetDeserializedResponseBody<IEnumerable<Portfolio>>();
-
-    //         portfolios.Should().NotBeEmpty();
-    //     }
-
-    //     [Fact]
-    //     public async void GetPortfolios_WithUserIdWithContent_ShouldReturnSeededUserPortfolios()
-    //     {
-    //         //Given
-    //         //Portfolios has been seeded
-    //         _request.QueryStringParameters = new Dictionary<string, string>
-    //         {
-    //             {"ownerId",UserWithContentId.ToString()}
-    //         };
-
-    //         //When
-    //         var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
-
-    //         //Then
-    //         httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
-    //         var portfolios = httpResponse.GetDeserializedResponseBody<IEnumerable<Portfolio>>();
-
-    //         portfolios.Should().NotBeEmpty();
-    //     }
-
-    //     [Fact]
-    //     public async void GetPortfolios_WithUserIdWithoutContent_ShouldReturnEmpty()
-    //     {
-    //         //Given
-    //         _request.QueryStringParameters = new Dictionary<string, string>
-    //         {
-    //             {"ownerId",UserWithoutContentId.ToString()}
-    //         };
-
-    //         //When
-    //         var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
-
-    //         //Then
-    //         httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
-    //         var portfolios = httpResponse.GetDeserializedResponseBody<IEnumerable<Portfolio>>();
-
-    //         portfolios.Should().BeEmpty();
-    //     }
-
-    //     [Fact]
-    //     public async void GetPortfolios_WithNonExistingUserId_ShouldReturnEmpty()
-    //     {
-    //         //Given
-    //         _request.QueryStringParameters = new Dictionary<string, string>
-    //         {
-    //             {"ownerId","99999999"}
-    //         };
-
-    //         //When
-    //         var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
-
-    //         //Then
-    //         httpResponse.StatusCode.Should().Be(StatusCodes.Status200OK);
-    //         var portfolios = httpResponse.GetDeserializedResponseBody<IEnumerable<Portfolio>>();
-
-    //         portfolios.Should().BeEmpty();
-    //     }
-    // }
+            portfolioWithAssets.Should().NotBeNull();
+        }
+    }
 }

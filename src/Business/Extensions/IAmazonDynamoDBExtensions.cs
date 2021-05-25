@@ -15,12 +15,12 @@ namespace Business.Extensions
         public async static Task<T> LoadByLocalIndexAsync<T>(this IAmazonDynamoDB dynamoDB, string hashKey, string rangeKeyName, string rangeKey, string index)
             where T : new()
         {
-            string tableName = GetTableName<T>(),
+            string tableName = GetDynamoDBTableName<T>(),
                 hashKeyName = GetHashKeyName<T>();
 
             var query = new QueryRequest
             {
-                TableName = GetTableName<T>(),
+                TableName = GetDynamoDBTableName<T>(),
                 Select = "ALL_ATTRIBUTES",
                 IndexName = index,
                 KeyConditionExpression = $"{hashKeyName} = :v_hash_key AND {rangeKeyName} = :v_range_key",
@@ -43,7 +43,7 @@ namespace Business.Extensions
             return mappedItem;
         }
 
-        public static string GetTableName<T>()
+        public static string GetDynamoDBTableName<T>()
         {
             var type = typeof(T);
             var dynamoDBTableAttribute = type.GetCustomAttributes(typeof(DynamoDBTableAttribute), true)

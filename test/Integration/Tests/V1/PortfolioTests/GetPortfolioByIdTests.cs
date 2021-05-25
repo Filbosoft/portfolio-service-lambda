@@ -54,7 +54,7 @@ namespace Integration.Tests.V1.PortfolioTests
             {
                 RequestItems = new Dictionary<string, List<WriteRequest>>
                 {
-                    { IAmazonDynamoDBExtensions.GetTableName<PortfolioEntity>(), writeRequests }
+                    { IAmazonDynamoDBExtensions.GetDynamoDBTableName<PortfolioEntity>(), writeRequests }
                 }
             };
 
