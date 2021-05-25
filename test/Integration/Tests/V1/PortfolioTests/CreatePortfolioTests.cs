@@ -42,6 +42,7 @@ namespace Integration.Tests.V1.PortfolioTests
             var createPortfolioCommand = new CreatePortfolioCommand
             {
                 Name = Guid.NewGuid().ToString(),
+                Capital = 1000
             };
 
             //When

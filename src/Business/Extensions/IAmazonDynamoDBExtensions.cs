@@ -38,7 +38,7 @@ namespace Business.Extensions
             if (item == null)
                 return default(T);
 
-            var mappedItem = item.GetEntity<T>();
+            var mappedItem = item.ToEntity<T>();
             
             return mappedItem;
         }

@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.Lambda.APIGatewayEvents;
-using Amazon.Lambda.TestUtilities;
 using Api;
 using Conditus.Trader.Domain.Entities;
 using FluentAssertions;
@@ -13,13 +9,13 @@ using Integration.Utilities;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 using Conditus.Trader.Domain.Models;
-
-using static Integration.Utilities.TestConstants;
-using static Integration.Seeds.PortfolioSeeds;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Business.Extensions;
 using Conditus.DynamoDBMapper.Mappers;
+
+using static Integration.Utilities.TestConstants;
+using static Integration.Seeds.PortfolioSeeds;
 
 namespace Integration.Tests.V1.PortfolioTests
 {
@@ -87,6 +83,19 @@ namespace Integration.Tests.V1.PortfolioTests
         {
             //Given
             var uri = $"{BASE_URL}/{Guid.NewGuid()}";
+
+            //When
+            var httpResponse = await _client.GetAsync(uri);
+
+            //Then
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        }
+
+        [Fact]
+        public async void GetPortfolioById_WithNonAuthorizedPortfolioId_ShouldReturnNotFound()
+        {
+            //Given
+            var uri = $"{BASE_URL}/{NON_TESTUSER_PORTFOLIO.Id}";
 
             //When
             var httpResponse = await _client.GetAsync(uri);
