@@ -42,13 +42,31 @@ namespace Integration.Seeds
             CreatedAt = Convert.ToDateTime("5/25/2021 08:00:03 AM").ToUniversalTime()
         };
 
-        public static readonly PortfolioEntity NON_TESTUSER_PORTFOLIO = new PortfolioEntity
+        public static readonly PortfolioEntity NON_USER_PORTFOLIO = new PortfolioEntity
         {
             Id = "ec7ec42d-a6fd-476c-8bce-4a609ae67068",
             Capital = 100000.90M,
             PortfolioName = "Portfolio",
             OwnerId = "04fb0290-43f1-4ab7-baee-e8daa0e8b5af",
             CreatedAt = Convert.ToDateTime("5/25/2021 08:00:04 AM").ToUniversalTime()
+        };
+
+        public static readonly PortfolioEntity PORTFOLIO_WITH_GROWTH_POINTS = new PortfolioEntity
+        {
+            Id = "dd147826-2c37-4672-bc9f-3e613ebb9c5f",
+            Capital = 100000.9M,
+            PortfolioName = "7523aa58-74e3-490f-9c7e-3eed52f7f893",
+            OwnerId = TESTUSER_ID,
+            CreatedAt = Convert.ToDateTime("5/25/2011 08:00:03 AM").ToUniversalTime()
+        };
+
+        public static readonly PortfolioEntity NON_USER_PORTFOLIO_WITH_GROWTH_POINTS = new PortfolioEntity
+        {
+            Id = "99200409-2665-435e-ae84-d0ce9dbd680b",
+            Capital = 100000.90M,
+            PortfolioName = "89f5b800-3d3a-4fd8-b6ea-5fb11605252e",
+            OwnerId = "04fb0290-43f1-4ab7-baee-e8daa0e8b5af",
+            CreatedAt = Convert.ToDateTime("5/25/2011 08:00:04 AM").ToUniversalTime()
         };
     }
 }

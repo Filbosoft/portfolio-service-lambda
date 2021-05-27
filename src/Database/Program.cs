@@ -94,11 +94,13 @@ namespace Database
         static void Up(IAmazonDynamoDB client)
         {
             CreatePortfolioTable_1.Up(client);
+            CreatePortfolioGrowthPointTable_2.Up(client);
         }
 
         static void Down(IAmazonDynamoDB client)
         {
             CreatePortfolioTable_1.Down(client);
+            CreatePortfolioGrowthPointTable_2.Down(client);
         }
     }
 }

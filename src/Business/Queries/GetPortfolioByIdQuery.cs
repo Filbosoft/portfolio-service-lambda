@@ -32,7 +32,7 @@ namespace Business.Queries
                 request.RequestingUserId,
                 nameof(PortfolioEntity.Id),
                 request.PortfolioId,
-                LocalIndexes.PortfolioIdIndex);
+                PortfolioLocalIndexes.PortfolioIdIndex);
 
             if (entity == null)
                 return BusinessResponse.Fail<PortfolioDetail>($"No portfolio with the id of {request.PortfolioId} was found");

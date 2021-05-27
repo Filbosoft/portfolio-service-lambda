@@ -65,7 +65,7 @@ namespace Integration.Tests.V1.PortfolioTests
                 TESTUSER_ID, 
                 nameof(PortfolioEntity.Id), 
                 newPortfolio.Id, 
-                LocalIndexes.PortfolioIdIndex);
+                PortfolioLocalIndexes.PortfolioIdIndex);
                 
             dbPortfolio.Should().NotBeNull()
                 .And.BeEquivalentTo(createPortfolioCommand, options => options

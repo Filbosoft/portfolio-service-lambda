@@ -41,11 +41,11 @@ namespace Business.Queries
             
             var query = GetQueryRequest(request);
             var response = await _db.QueryAsync(query);
-            var orderEntities = response.Items
+            var portfolioEntities = response.Items
                 .Select(i => i.ToEntity<PortfolioEntity>())
                 .ToList();
 
-            var portfolioOverviews = orderEntities.Select(_mapper.Map<PortfolioOverview>);
+            var portfolioOverviews = portfolioEntities.Select(_mapper.Map<PortfolioOverview>);
 
             return BusinessResponse.Ok<IEnumerable<PortfolioOverview>>(portfolioOverviews);
         }
@@ -90,7 +90,7 @@ namespace Business.Queries
             }
 
             keyConditions.Add($"({nameof(PortfolioEntity.CreatedAt)} >= {V_CREATED_FROM_DATE})");
-            keyConditions.Add($"({nameof(OrderEntity.OwnerId)} = {V_REQUESTING_USER_ID})");
+            keyConditions.Add($"({nameof(PortfolioEntity.OwnerId)} = {V_REQUESTING_USER_ID})");
 
             query.KeyConditionExpression = string.Join(" AND ", keyConditions);
 

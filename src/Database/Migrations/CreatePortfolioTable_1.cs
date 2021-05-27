@@ -57,7 +57,7 @@ namespace Database
                 {
                     new LocalSecondaryIndex
                     {
-                        IndexName = LocalIndexes.PortfolioIdIndex,
+                        IndexName = PortfolioLocalIndexes.PortfolioIdIndex,
                         KeySchema = new List<KeySchemaElement>
                         {
                             partitionKey,

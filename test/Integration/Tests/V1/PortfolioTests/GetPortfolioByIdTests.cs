@@ -95,7 +95,7 @@ namespace Integration.Tests.V1.PortfolioTests
         public async void GetPortfolioById_WithNonAuthorizedPortfolioId_ShouldReturnNotFound()
         {
             //Given
-            var uri = $"{BASE_URL}/{NON_TESTUSER_PORTFOLIO.Id}";
+            var uri = $"{BASE_URL}/{NON_USER_PORTFOLIO.Id}";
 
             //When
             var httpResponse = await _client.GetAsync(uri);

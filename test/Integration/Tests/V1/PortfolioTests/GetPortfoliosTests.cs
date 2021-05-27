@@ -44,7 +44,7 @@ namespace Integration.Tests.V1.PortfolioTests
                 PORTFOLIO_WITH_ASSETS,
                 PORTFOLIO_WITH_PORTFOLIO_IN_NAME,
                 OLD_PORTFOLIO,
-                NON_TESTUSER_PORTFOLIO
+                NON_USER_PORTFOLIO
             };
 
             var writeRequests = seedPortfolios

@@ -1,6 +1,6 @@
 namespace Database.Indexes
 {
-    public static class LocalIndexes
+    public static class PortfolioLocalIndexes
     {
         public const string PortfolioIdIndex = "PortfolioIdIndex";
     }
