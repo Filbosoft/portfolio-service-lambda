@@ -9,9 +9,9 @@ using Xunit;
 using Amazon.DynamoDBv2.DataModel;
 using System.Net;
 
-using static Integration.Utilities.TestConstants;
-using static Integration.Seeds.PortfolioSeeds;
-using static Integration.Seeds.PortfolioGrowthPointSeeds;
+using static Integration.Tests.V1.TestConstants;
+using static Integration.Seeds.V1.PortfolioSeeds;
+using static Integration.Seeds.V1.PortfolioGrowthPointSeeds;
 
 namespace Integration.Tests.V1.PortfolioTests
 {

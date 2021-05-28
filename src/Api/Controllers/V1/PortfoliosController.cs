@@ -74,19 +74,19 @@ namespace Api.Controllers
         }
 
 
-        // [HttpPut("{id}")]
-        // public async Task<ActionResult<PortfolioDetail>> Put([FromRoute] string id, [FromBody] UpdatePortfolioCommand command)
-        // {
-        //     command.Id = id;
-        //     var response = await _mediator.Send(command);
+        [HttpPut("{id}")]
+        public async Task<ActionResult<PortfolioDetail>> Put([FromRoute] string id, [FromBody] UpdatePortfolioCommand command)
+        {
+            command.Id = id;
+            var response = await _mediator.Send(command);
 
-        //     if (response.IsError) 
-        //         return NotFound(response.Message);
+            if (response.IsError) 
+                return NotFound(response.Message);
 
-        //     var updatedPortfolio = response.Data;
+            var updatedPortfolio = response.Data;
 
-        //     return Accepted(updatedPortfolio);
-        // }
+            return Accepted(updatedPortfolio);
+        }
 
         // [HttpDelete("{id}")]
         // public async Task<ActionResult<bool>> Delete([FromRoute] string id)

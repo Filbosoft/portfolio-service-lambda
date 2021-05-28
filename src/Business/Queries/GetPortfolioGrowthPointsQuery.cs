@@ -10,6 +10,7 @@ using Business.Extensions;
 using Conditus.DynamoDBMapper.Mappers;
 using System.Linq;
 using System.ComponentModel.DataAnnotations;
+using Business.HelperMethods;
 
 namespace Business.Queries
 {
@@ -70,7 +71,7 @@ namespace Business.Queries
         {
             var query = new QueryRequest
             {
-                TableName = IAmazonDynamoDBExtensions.GetDynamoDBTableName<PortfolioGrowthPoint>(),
+                TableName = DynamoDBHelper.GetDynamoDBTableName<PortfolioGrowthPoint>(),
                 Select = "ALL_ATTRIBUTES",
                 ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {

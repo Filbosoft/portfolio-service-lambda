@@ -9,6 +9,7 @@ using Conditus.Trader.Domain.Models;
 using Conditus.Trader.Domain.Entities;
 using Conditus.DynamoDBMapper.Mappers;
 using Amazon.DynamoDBv2;
+using Business.HelperMethods;
 
 namespace Business.Commands
 {
@@ -37,7 +38,7 @@ namespace Business.Commands
             entity.Id = Guid.NewGuid().ToString();
             entity.Assets = new List<PortfolioAsset>();
 
-            var response = await _db.PutItemAsync("Portfolios", entity.GetAttributeValueMap());
+            var response = await _db.PutItemAsync(DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(), entity.GetAttributeValueMap());
             
             var portfolioDetail = _mapper.Map<PortfolioDetail>(entity);
 

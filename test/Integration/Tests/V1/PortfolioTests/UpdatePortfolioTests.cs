@@ -1,255 +1,127 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
-using System.Text.Json;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.Lambda.APIGatewayEvents;
-using Amazon.Lambda.TestUtilities;
+using Amazon.DynamoDBv2.Model;
 using Api;
+using Business.Commands;
+using Business.Extensions;
+using Business.HelperMethods;
+using Conditus.DynamoDBMapper.Mappers;
+using Conditus.Trader.Domain.Entities;
+using Conditus.Trader.Domain.Models;
+using Database.Indexes;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Integration.Utilities;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
+using static Integration.Seeds.V1.PortfolioSeeds;
+using static Integration.Tests.V1.TestConstants;
 
 namespace Integration.Tests.V1.PortfolioTests
 {
-    // public class UpdatePortfolioTests : IClassFixture<CustomWebApplicationFactory<Startup>>, IDisposable
-    // {
-    //     private readonly LambdaEntryPoint _entryPoint;
-    //     private readonly TestLambdaContext _context;
-    //     private readonly APIGatewayProxyRequest _request;
-    //     private readonly IDynamoDBContext _db;
+    public class UpdatePortfolioTests : IClassFixture<CustomWebApplicationFactory<Startup>>, IDisposable
+    {
+        private readonly HttpClient _client;
+        private readonly IAmazonDynamoDB _db;
 
-    //     private const string PORTFOLIO_URI = "api/v1/portfolios";
+        public UpdatePortfolioTests(CustomWebApplicationFactory<Startup> factory)
+        {
+            _client = factory.CreateAuthorizedClient();
+            _db = factory.GetDynamoDB();
 
-    //     public UpdatePortfolioTests(CustomWebApplicationFactory<Startup> factory)
-    //     {
-    //         _entryPoint = new LambdaEntryPoint();
-    //         _context = new TestLambdaContext();
+            Setup();
+        }
 
-    //         _request = factory.CreateBaseRequest();
-    //         _request.HttpMethod = HttpMethod.Put.ToString();
+        public void Dispose()
+        {
+            _client.Dispose();
+            _db.Dispose();
+        }
 
-    //         _db = factory.GetDbContext();
+        private async void Setup()
+        {
+            var seedPortfolios = new List<PortfolioEntity>
+            {
+                PORTFOLIO_TO_UPDATE
+            };
 
-    //         Setup();
-    //     }
+            var writeRequests = seedPortfolios
+                .Select(p => new PutRequest { Item = p.GetAttributeValueMap() })
+                .Select(p => new WriteRequest { PutRequest = p })
+                .ToList();
 
-    //     public void Dispose()
-    //     {
-    //         _db.Dispose();
-    //     }
+            var batchWriteRequest = new BatchWriteItemRequest
+            {
+                RequestItems = new Dictionary<string, List<WriteRequest>>
+                {
+                    { DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(), writeRequests }
+                }
+            };
 
-    //     /**
-    //     * * Seed values
-    //     * Id prefix: 1004
-    //     **/
+            await _db.BatchWriteItemAsync(batchWriteRequest);
+        }
 
-    //     public readonly static Portfolio Portfolio1 = new Portfolio
-    //     {
-    //         Id = Guid.NewGuid().ToString(),
-    //         Name = "TestPortfolio1",
-    //         Currency = "DKK",
-    //         Owner = "83f684b0-e288-47d5-8489-8e11fc03e4ea"
-    //     };
+        [Fact]
+        public async void UpdatePortfolio_withName_ShouldReturnAcceptedAndTheUpdatedPortfolio()
+        {
+            //Given
+            var uri = $"{BASE_URL}/{PORTFOLIO_TO_UPDATE.Id}";
+            var portfolioUpdator = new UpdatePortfolioCommand
+            {
+                Name = "portfolioName_updated"
+            };
 
-    //     private async void Setup()
-    //     {
-    //         await _db.SaveAsync<Portfolio>(Portfolio1);
-    //     }
+            //When
+            var httpResponse = await _client.PutAsync(uri, HttpSerializer.GetStringContent(portfolioUpdator));
 
-    //     [Fact]
-    //     public async void UpdatePortfolio_withAllValues_ShouldReturnAcceptedAndTheUpdatedPortfolio()
-    //     {
-    //         //Given
-    //         var uri = $"{PORTFOLIO_URI}/{Portfolio1.Id}";
-    //         var portfolioUpdator = new UpdatePortfolioCommand
-    //         {
-    //             Id = Portfolio1.Id,
-    //             Name = "portfolioName_updated",
-    //             Currency = "USD",
-    //             Owner = "8f9c0c9a-4cb9-4559-ab12-df09900ca1d3"
-    //         };
+            //Then
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status202Accepted);
+            var updatedPortfolio = await httpResponse.GetDeserializedResponseBodyAsync<PortfolioDetail>();
 
-    //         _request.Path = uri;
-    //         _request.PathParameters = new Dictionary<string, string>
-    //         {
-    //             {"proxy", uri}
-    //         };
-    //         _request.Body = JsonSerializer.Serialize(portfolioUpdator);
+            using (new AssertionScope())
+            {
+                updatedPortfolio.Should().NotBeNull();
+                updatedPortfolio.Name.Should().Be(portfolioUpdator.Name);
+                updatedPortfolio.Should().BeEquivalentTo(PORTFOLIO_TO_UPDATE, options => options
+                    .ExcludingMissingMembers());
+            }
 
-    //         //When
-    //         var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
+            var dbPortfolio = await _db.LoadByLocalIndexAsync<PortfolioEntity>(
+                TESTUSER_ID, 
+                nameof(PortfolioEntity.Id), 
+                PORTFOLIO_TO_UPDATE.Id, 
+                PortfolioLocalIndexes.PortfolioIdIndex);
 
-    //         //Then
-    //         httpResponse.StatusCode.Should().Be(StatusCodes.Status202Accepted);
-    //         var updatedPortfolio = httpResponse.GetDeserializedResponseBody<Portfolio>();
+            using (new AssertionScope())
+            {
+                dbPortfolio.Should().NotBeNull()
+                    .And.BeEquivalentTo(PORTFOLIO_TO_UPDATE, options => options
+                        .Excluding(p => p.PortfolioName)
+                        .ExcludingMissingMembers());
+                dbPortfolio.PortfolioName.Should().Equals(portfolioUpdator.Name);
+            }
+        }
 
-    //         updatedPortfolio.Should().NotBeNull()
-    //             .And.BeEquivalentTo(portfolioUpdator, options => options.ExcludingMissingMembers());
+        [Fact]
+        public async void UpdatePortfolio_withNonExistingId_ShouldReturnNotFound()
+        {
+            //Given
+            var uri = $"{BASE_URL}/{Guid.NewGuid()}";
+            var portfolioUpdator = new UpdatePortfolioCommand
+            {
+                Name = "Updated"
+            };
 
-    //         var dbPortfolio = await _db.LoadAsync<Portfolio>(Portfolio1.Id);
+            //When
+            var httpResponse = await _client.PutAsync(uri, HttpSerializer.GetStringContent(portfolioUpdator));
 
-    //         dbPortfolio.Should().BeEquivalentTo(portfolioUpdator, options => options
-    //             .ExcludingMissingMembers());
-    //     }
-
-    //     [Fact]
-    //     public async void UpdatePortfolio_withOnlyName_ShouldReturnAcceptedAndOnlyHaveUpdatedName()
-    //     {
-    //         //Given
-    //         var uri = $"{PORTFOLIO_URI}/{Portfolio1.Id}";
-    //         var portfolioUpdator = new UpdatePortfolioCommand
-    //         {
-    //             Id = Portfolio1.Id,
-    //             Name = "UpdatedName"
-    //         };
-
-    //         _request.Path = uri;
-    //         _request.PathParameters = new Dictionary<string, string>
-    //         {
-    //             {"proxy", uri}
-    //         };
-    //         _request.Body = JsonSerializer.Serialize(portfolioUpdator);
-
-    //         //When
-    //         var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
-
-    //         //Then
-    //         httpResponse.StatusCode.Should().Be(StatusCodes.Status202Accepted);
-    //         var updatedPortfolio = httpResponse.GetDeserializedResponseBody<Portfolio>();
-
-    //         using (new AssertionScope())
-    //         {
-    //             updatedPortfolio.Should().NotBeNull();
-    //             updatedPortfolio.Name.Should().Be(portfolioUpdator.Name);
-    //             updatedPortfolio.Should().BeEquivalentTo(Portfolio1, options => options
-    //                 .Excluding(p => p.Name)
-    //                 .ExcludingMissingMembers());
-    //         }
-
-    //         var dbPortfolio = await _db.LoadAsync<Portfolio>(Portfolio1.Id);
-    //         using (new AssertionScope())
-    //         {
-    //             dbPortfolio.Should().BeEquivalentTo(Portfolio1, options => options
-    //                 .Excluding(p => p.Name)
-    //                 .ExcludingMissingMembers());
-    //             dbPortfolio.Name.Should().Equals(portfolioUpdator.Name);
-    //         }
-    //     }
-
-    //     [Fact]
-    //     public async void UpdatePortfolio_withOnlyCurrency_ShouldReturnAcceptedAndOnlyHaveUpdatedCurrency()
-    //     {
-    //         //Given
-    //         var uri = $"{PORTFOLIO_URI}/{Portfolio1.Id}";
-    //         var portfolioUpdator = new UpdatePortfolioCommand
-    //         {
-    //             Id = Portfolio1.Id,
-    //             Currency = "USD"
-    //         };
-
-    //         _request.Path = uri;
-    //         _request.PathParameters = new Dictionary<string, string>
-    //         {
-    //             {"proxy", uri}
-    //         };
-    //         _request.Body = JsonSerializer.Serialize(portfolioUpdator);
-
-    //         //When
-    //         var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
-
-    //         //Then
-    //         httpResponse.StatusCode.Should().Be(StatusCodes.Status202Accepted);
-    //         var updatedPortfolio = httpResponse.GetDeserializedResponseBody<Portfolio>();
-
-    //         using (new AssertionScope())
-    //         {
-    //             updatedPortfolio.Should().NotBeNull();
-    //             updatedPortfolio.Currency.Should().Be(portfolioUpdator.Currency);
-    //             updatedPortfolio.Should().BeEquivalentTo(Portfolio1, options => options
-    //                 .Excluding(p => p.Currency)
-    //                 .ExcludingMissingMembers());
-    //         }
-
-    //         var dbPortfolio = await _db.LoadAsync<Portfolio>(Portfolio1.Id);
-    //         using (new AssertionScope())
-    //         {
-    //             dbPortfolio.Should().BeEquivalentTo(Portfolio1, options => options
-    //                 .Excluding(p => p.Currency)
-    //                 .ExcludingMissingMembers());
-    //             dbPortfolio.Currency.Should().Equals(portfolioUpdator.Currency);
-    //         }
-    //     }
-
-    //     [Fact]
-    //     public async void UpdatePortfolio_withOnlyUserId_ShouldReturnAcceptedAndOnlyHaveUpdatedUserId()
-    //     {
-    //         //Given
-    //         var uri = $"{PORTFOLIO_URI}/{Portfolio1.Id}";
-    //         var portfolioUpdator = new UpdatePortfolioCommand
-    //         {
-    //             Id = Portfolio1.Id,
-    //             Owner = "fab7fdb9-0801-49a5-bc0e-f946a5ba716d"
-    //         };
-
-    //         _request.Path = uri;
-    //         _request.PathParameters = new Dictionary<string, string>
-    //         {
-    //             {"proxy", uri}
-    //         };
-    //         _request.Body = JsonSerializer.Serialize(portfolioUpdator);
-
-    //         //When
-    //         var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
-
-    //         //Then
-    //         httpResponse.StatusCode.Should().Be(StatusCodes.Status202Accepted);
-    //         var updatedPortfolio = httpResponse.GetDeserializedResponseBody<Portfolio>();
-
-    //         using (new AssertionScope())
-    //         {
-    //             updatedPortfolio.Should().NotBeNull();
-    //             updatedPortfolio.Owner.Should().Be(portfolioUpdator.Owner);
-    //             updatedPortfolio.Should().BeEquivalentTo(Portfolio1, options => options
-    //                 .Excluding(p => p.Owner)
-    //                 .ExcludingMissingMembers());
-    //         }
-
-    //         var dbPortfolio = await _db.LoadAsync<Portfolio>(Portfolio1.Id);
-    //         using (new AssertionScope())
-    //         {
-    //             dbPortfolio.Should().BeEquivalentTo(Portfolio1, options => options
-    //                 .Excluding(p => p.Owner)
-    //                 .ExcludingMissingMembers());
-    //             dbPortfolio.Owner.Should().Equals(portfolioUpdator.Owner);
-    //         }
-    //     }
-
-    //     [Fact]
-    //     public async void UpdatePortfolio_withNonExistingId_ShouldReturnNotFound()
-    //     {
-    //         //Given
-    //         var uri = $"{PORTFOLIO_URI}/{Guid.NewGuid()}";
-    //         var portfolioUpdator = new UpdatePortfolioCommand
-    //         {
-    //             Name = "Updated"
-    //         };
-
-    //         _request.Path = uri;
-    //         _request.PathParameters = new Dictionary<string, string>
-    //         {
-    //             {"proxy", uri}
-    //         };
-    //         _request.Body = JsonSerializer.Serialize(portfolioUpdator);
-
-    //         //When
-    //         var httpResponse = await _entryPoint.FunctionHandlerAsync(_request, _context);
-
-    //         //Then
-    //         httpResponse.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-    //     }
-    // }
+            //Then
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        }
+    }
 }

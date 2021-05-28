@@ -13,8 +13,9 @@ using Integration.Utilities;
 using Xunit;
 using Conditus.DynamoDBMapper.Mappers;
 
-using static Integration.Utilities.TestConstants;
-using static Integration.Seeds.PortfolioSeeds;
+using static Integration.Tests.V1.TestConstants;
+using static Integration.Seeds.V1.PortfolioSeeds;
+using Business.HelperMethods;
 
 namespace Integration.Tests.V1.PortfolioTests
 {
@@ -56,7 +57,7 @@ namespace Integration.Tests.V1.PortfolioTests
             {
                 RequestItems = new Dictionary<string, List<WriteRequest>>
                 {
-                    { IAmazonDynamoDBExtensions.GetDynamoDBTableName<PortfolioEntity>(), writeRequests }
+                    { DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(), writeRequests }
                 }
             };
 

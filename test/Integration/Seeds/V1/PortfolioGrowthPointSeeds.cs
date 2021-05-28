@@ -1,10 +1,10 @@
 using System;
 using Conditus.Trader.Domain.Entities;
 
-using static Integration.Utilities.TestConstants;
-using static Integration.Seeds.PortfolioSeeds;
+using static Integration.Tests.V1.TestConstants;
+using static Integration.Seeds.V1.PortfolioSeeds;
 
-namespace Integration.Seeds
+namespace Integration.Seeds.V1
 {
     public static class PortfolioGrowthPointSeeds
     {

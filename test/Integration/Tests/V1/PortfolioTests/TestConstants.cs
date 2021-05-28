@@ -1,4 +1,4 @@
-namespace Integration.Utilities
+namespace Integration.Tests.V1
 {
     public static class TestConstants
     {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
+using Business.HelperMethods;
 using Conditus.DynamoDBMapper.Mappers;
 
 namespace Business.Extensions
@@ -15,12 +16,12 @@ namespace Business.Extensions
         public async static Task<T> LoadByLocalIndexAsync<T>(this IAmazonDynamoDB dynamoDB, string hashKey, string rangeKeyName, string rangeKey, string index)
             where T : new()
         {
-            string tableName = GetDynamoDBTableName<T>(),
-                hashKeyName = GetHashKeyName<T>();
+            string tableName = DynamoDBHelper.GetDynamoDBTableName<T>(),
+                hashKeyName = DynamoDBHelper.GetHashKeyName<T>();
 
             var query = new QueryRequest
             {
-                TableName = GetDynamoDBTableName<T>(),
+                TableName = tableName,
                 Select = "ALL_ATTRIBUTES",
                 IndexName = index,
                 KeyConditionExpression = $"{hashKeyName} = :v_hash_key AND {rangeKeyName} = :v_range_key",
@@ -41,31 +42,6 @@ namespace Business.Extensions
             var mappedItem = item.ToEntity<T>();
             
             return mappedItem;
-        }
-
-        public static string GetDynamoDBTableName<T>()
-        {
-            var type = typeof(T);
-            var dynamoDBTableAttribute = type.GetCustomAttributes(typeof(DynamoDBTableAttribute), true)
-                .FirstOrDefault() as DynamoDBTableAttribute;
-            
-            if (dynamoDBTableAttribute == null)
-                return null;
-            
-            return dynamoDBTableAttribute.TableName;
-        }
-
-        private static string GetHashKeyName<T>()
-        {
-            var type = typeof(T);
-            var hashProperty = type.GetProperties()
-                .Where(p => p.GetCustomAttribute(typeof(DynamoDBHashKeyAttribute), false) != null)
-                .FirstOrDefault();
-            
-            if (hashProperty == null)
-                throw new ArgumentOutOfRangeException("T","No hashkey defined on type");
-            
-            return hashProperty.Name;
         }
     }
 }

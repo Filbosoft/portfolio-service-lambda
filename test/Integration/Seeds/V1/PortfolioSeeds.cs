@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using Conditus.Trader.Domain.Entities;
 using Conditus.Trader.Domain.Models;
 
-using static Integration.Seeds.AssetSeeds;
-using static Integration.Utilities.TestConstants;
+using static Integration.Tests.V1.TestConstants;
+using static Integration.Seeds.V1.AssetSeeds;
 
-namespace Integration.Seeds
+namespace Integration.Seeds.V1
 {
     public static class PortfolioSeeds
     {
@@ -67,6 +67,15 @@ namespace Integration.Seeds
             PortfolioName = "89f5b800-3d3a-4fd8-b6ea-5fb11605252e",
             OwnerId = "04fb0290-43f1-4ab7-baee-e8daa0e8b5af",
             CreatedAt = Convert.ToDateTime("5/25/2011 08:00:04 AM").ToUniversalTime()
+        };
+
+        public static readonly PortfolioEntity PORTFOLIO_TO_UPDATE = new PortfolioEntity
+        {
+            Id = "9ca13b56-9fba-4951-918d-f04782d731ee",
+            Capital = 100.90M,
+            PortfolioName = "08036100-46f1-496f-aee3-4d7185e5fbb1",
+            OwnerId = TESTUSER_ID,
+            CreatedAt = Convert.ToDateTime("5/25/2021 08:00:04 AM").ToUniversalTime()
         };
     }
 }

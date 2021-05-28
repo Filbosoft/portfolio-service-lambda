@@ -14,7 +14,7 @@ using Integration.Utilities;
 using Microsoft.AspNetCore.Http;
 using Xunit;
 
-using static Integration.Utilities.TestConstants;
+using static Integration.Tests.V1.TestConstants;
 
 namespace Integration.Tests.V1.PortfolioTests
 {

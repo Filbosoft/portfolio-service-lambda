@@ -1,9 +1,9 @@
 using Conditus.Trader.Domain.Enums;
 using Conditus.Trader.Domain.Models;
 
-using static Integration.Seeds.CurrencySeeds;
+using static Integration.Seeds.V1.CurrencySeeds;
 
-namespace Integration.Seeds
+namespace Integration.Seeds.V1
 {
     public static class AssetSeeds
     {

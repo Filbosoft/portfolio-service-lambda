@@ -1,8 +1,6 @@
-using System;
-using Conditus.Trader.Domain.Entities;
 using Conditus.Trader.Domain.Models;
 
-namespace Integration.Seeds
+namespace Integration.Seeds.V1
 {
     public static class CurrencySeeds
     {
