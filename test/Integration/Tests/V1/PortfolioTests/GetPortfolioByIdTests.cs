@@ -43,7 +43,8 @@ namespace Integration.Tests.V1.PortfolioTests
         {
             var seedPortfolios = new List<PortfolioEntity>
             {
-                PORTFOLIO_WITH_ASSETS
+                PORTFOLIO_WITH_ASSETS,
+                NON_USER_PORTFOLIO
             };
 
             var writeRequests = seedPortfolios

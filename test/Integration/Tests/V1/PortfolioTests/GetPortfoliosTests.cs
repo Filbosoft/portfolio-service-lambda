@@ -34,6 +34,7 @@ namespace Integration.Tests.V1.PortfolioTests
 
         public void Dispose()
         {
+            _client.Dispose();
             _db.Dispose();
         }
 

@@ -63,7 +63,7 @@ namespace Integration.Seeds.V1
         public static readonly PortfolioEntity NON_USER_PORTFOLIO_WITH_GROWTH_POINTS = new PortfolioEntity
         {
             Id = "99200409-2665-435e-ae84-d0ce9dbd680b",
-            Capital = 100000.90M,
+            Capital = 100000.9M,
             PortfolioName = "89f5b800-3d3a-4fd8-b6ea-5fb11605252e",
             OwnerId = "04fb0290-43f1-4ab7-baee-e8daa0e8b5af",
             CreatedAt = Convert.ToDateTime("5/25/2011 08:00:04 AM").ToUniversalTime()
@@ -72,8 +72,17 @@ namespace Integration.Seeds.V1
         public static readonly PortfolioEntity PORTFOLIO_TO_UPDATE = new PortfolioEntity
         {
             Id = "9ca13b56-9fba-4951-918d-f04782d731ee",
-            Capital = 100.90M,
+            Capital = 100.9M,
             PortfolioName = "08036100-46f1-496f-aee3-4d7185e5fbb1",
+            OwnerId = TESTUSER_ID,
+            CreatedAt = Convert.ToDateTime("5/25/2021 08:00:04 AM").ToUniversalTime()
+        };
+
+        public static readonly PortfolioEntity PORTFOLIO_FOR_TRANSACTIONS = new PortfolioEntity
+        {
+            Id = "6076e5ef-830f-42cd-beef-4c1210531cf0",
+            Capital = 100.9M,
+            PortfolioName = "0a22a909-7732-400f-a532-2d67e8cd474f",
             OwnerId = TESTUSER_ID,
             CreatedAt = Convert.ToDateTime("5/25/2021 08:00:04 AM").ToUniversalTime()
         };

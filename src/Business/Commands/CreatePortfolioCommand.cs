@@ -18,6 +18,7 @@ namespace Business.Commands
         [Required]
         public string Name { get; set; }
         [Required]
+        [Range(1, double.MaxValue)]
         public decimal? Capital { get; set; }
     }
 

@@ -45,25 +45,9 @@ namespace Integration.Tests.V1.PortfolioTests
 
         private async void Setup()
         {
-            var seedPortfolios = new List<PortfolioEntity>
-            {
-                PORTFOLIO_TO_UPDATE
-            };
-
-            var writeRequests = seedPortfolios
-                .Select(p => new PutRequest { Item = p.GetAttributeValueMap() })
-                .Select(p => new WriteRequest { PutRequest = p })
-                .ToList();
-
-            var batchWriteRequest = new BatchWriteItemRequest
-            {
-                RequestItems = new Dictionary<string, List<WriteRequest>>
-                {
-                    { DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(), writeRequests }
-                }
-            };
-
-            await _db.BatchWriteItemAsync(batchWriteRequest);
+            await _db.PutItemAsync(
+                DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(),
+                PORTFOLIO_TO_UPDATE.GetAttributeValueMap());
         }
 
         [Fact]
