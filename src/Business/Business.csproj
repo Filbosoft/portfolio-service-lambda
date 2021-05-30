@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Conditus.DynamoDBMapper" Version="1.0.0" />
-    <PackageReference Include="Conditus.Trader.Domain" Version="1.0.4" />
+    <PackageReference Include="Conditus.Trader.Domain" Version="1.0.5" />
   </ItemGroup>
 
   <ItemGroup>

@@ -22,7 +22,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Conditus.Trader.Domain" Version="1.0.4" />
+    <PackageReference Include="Conditus.Trader.Domain" Version="1.0.5" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Api\Api.csproj" />

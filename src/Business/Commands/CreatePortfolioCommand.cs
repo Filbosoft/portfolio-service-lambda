@@ -33,11 +33,14 @@ namespace Business.Commands
             _db = db;
         }
 
+        public const string DEFAULT_CURRENCY_CODE = "DKK";        
+
         public async Task<BusinessResponse<PortfolioDetail>> Handle(CreatePortfolioCommand request, CancellationToken cancellationToken)
         {
             var entity = _mapper.Map<PortfolioEntity>(request);
             entity.Id = Guid.NewGuid().ToString();
             entity.Assets = new List<PortfolioAsset>();
+            entity.CurrencyCode = DEFAULT_CURRENCY_CODE;
 
             var response = await _db.PutItemAsync(DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(), entity.GetAttributeValueMap());
             
