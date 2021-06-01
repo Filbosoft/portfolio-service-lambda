@@ -35,6 +35,7 @@ namespace Api
         protected override void Init(IWebHostBuilder builder)
         {
             builder
+                .AddLogging()
                 .UseStartup<Startup>();
         }
 
