@@ -21,7 +21,8 @@ namespace Business.Queries.Handlers
             _db = db;
         }
 
-        public const double DAYS_IN_TEN_YEARS = 10*365.25;
+        public const double MAX_TIMESPAN_IN_YEARS = 10;
+        public const double MAX_TIMESPAN_IN_DAYS = MAX_TIMESPAN_IN_YEARS*365.25;
 
         public async Task<BusinessResponse<IEnumerable<PortfolioGrowthPoint>>> Handle(GetPortfolioGrowthPointsQuery request, CancellationToken cancellationToken)
         {
@@ -36,10 +37,10 @@ namespace Business.Queries.Handlers
                     "FromDate cannot be after ToDate");
             
             var dateDiff = ((DateTime)request.ToDate) - ((DateTime)request.FromDate);
-            if (dateDiff.TotalDays > DAYS_IN_TEN_YEARS)
+            if (dateDiff.TotalDays > MAX_TIMESPAN_IN_DAYS)
                 return BusinessResponse.Fail<IEnumerable<PortfolioGrowthPoint>>(
                     GetPortfolioGrowthPointsResponseCodes.TimespanToLong,
-                    "Timespan must be less than 10 years");
+                    $"Timespan must be less than {MAX_TIMESPAN_IN_YEARS} years");
 
             var query = GetQueryRequest(request);
             var response = await _db.QueryAsync(query);
