@@ -33,8 +33,6 @@ namespace Integration.Tests.V1.PortfolioTests
         {
             _client = factory.CreateAuthorizedClient();
             _db = factory.GetDynamoDB();
-
-            Setup();
         }
 
         public void Dispose()
@@ -43,25 +41,22 @@ namespace Integration.Tests.V1.PortfolioTests
             _db.Dispose();
         }
 
-        private async void Setup()
-        {
-            await _db.PutItemAsync(
-                DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(),
-                PORTFOLIO_TO_UPDATE.GetAttributeValueMap());
-        }
-
         [Fact]
         public async void UpdatePortfolio_withName_ShouldReturnAcceptedAndTheUpdatedPortfolio()
         {
             //Given
+            await _db.PutItemAsync(
+                DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(),
+                PORTFOLIO_TO_UPDATE.GetAttributeValueMap());
+                
             var uri = $"{BASE_URL}/{PORTFOLIO_TO_UPDATE.Id}";
-            var portfolioUpdator = new UpdatePortfolioCommand
+            var portfolioUpdater = new UpdatePortfolioCommand
             {
                 Name = "portfolioName_updated"
             };
 
             //When
-            var httpResponse = await _client.PutAsync(uri, HttpSerializer.GetStringContent(portfolioUpdator));
+            var httpResponse = await _client.PutAsync(uri, HttpSerializer.GetStringContent(portfolioUpdater));
 
             //Then
             httpResponse.StatusCode.Should().Be(StatusCodes.Status202Accepted);
@@ -70,7 +65,7 @@ namespace Integration.Tests.V1.PortfolioTests
             using (new AssertionScope())
             {
                 updatedPortfolio.Should().NotBeNull();
-                updatedPortfolio.Name.Should().Be(portfolioUpdator.Name);
+                updatedPortfolio.Name.Should().Be(portfolioUpdater.Name);
                 updatedPortfolio.Should().BeEquivalentTo(PORTFOLIO_TO_UPDATE, options => options
                     .ExcludingMissingMembers());
             }
@@ -87,7 +82,7 @@ namespace Integration.Tests.V1.PortfolioTests
                     .And.BeEquivalentTo(PORTFOLIO_TO_UPDATE, options => options
                         .Excluding(p => p.PortfolioName)
                         .ExcludingMissingMembers());
-                dbPortfolio.PortfolioName.Should().Equals(portfolioUpdator.Name);
+                dbPortfolio.PortfolioName.Should().Equals(portfolioUpdater.Name);
             }
         }
 
@@ -96,13 +91,13 @@ namespace Integration.Tests.V1.PortfolioTests
         {
             //Given
             var uri = $"{BASE_URL}/{Guid.NewGuid()}";
-            var portfolioUpdator = new UpdatePortfolioCommand
+            var portfolioUpdater = new UpdatePortfolioCommand
             {
                 Name = "Updated"
             };
 
             //When
-            var httpResponse = await _client.PutAsync(uri, HttpSerializer.GetStringContent(portfolioUpdator));
+            var httpResponse = await _client.PutAsync(uri, HttpSerializer.GetStringContent(portfolioUpdater));
 
             //Then
             httpResponse.StatusCode.Should().Be(StatusCodes.Status404NotFound);

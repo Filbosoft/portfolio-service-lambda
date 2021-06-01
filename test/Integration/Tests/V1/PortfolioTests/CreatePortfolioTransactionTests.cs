@@ -41,16 +41,17 @@ namespace Integration.Tests.V1.PortfolioTests
 
         private async void Seed()
         {
-            await _db.PutItemAsync(
-                DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(),
-                PORTFOLIO_FOR_TRANSACTIONS.GetAttributeValueMap());
+            
         }
 
         [Fact]
         public async void CreatePortfolioTransaction_WithValidAmount_ShouldReturnCreatedAndPortfolioCapitalShouldHaveBeenIncreased()
         {
             //Given
-            Seed();
+            await _db.PutItemAsync(
+                DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(),
+                PORTFOLIO_FOR_TRANSACTIONS.GetAttributeValueMap());
+
             var uri = $"{BASE_URL}/{PORTFOLIO_FOR_TRANSACTIONS.Id}/transactions";
             var transactionCreateCommand = new CreatePortfolioTransactionCommand
             {
@@ -84,7 +85,10 @@ namespace Integration.Tests.V1.PortfolioTests
         public async void CreatePortfolioTransaction_WithNegativeAmount_ShouldReturnBadRequest()
         {
             //Given
-            Seed();
+            await _db.PutItemAsync(
+                DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(),
+                PORTFOLIO_FOR_TRANSACTIONS.GetAttributeValueMap());
+                
             var uri = $"{BASE_URL}/{PORTFOLIO_FOR_TRANSACTIONS.Id}/transactions";
             var transactionCreateCommand = new CreatePortfolioTransactionCommand
             {

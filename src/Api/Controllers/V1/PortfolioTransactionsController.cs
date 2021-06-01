@@ -27,12 +27,16 @@ namespace Api.Controllers
             command.PortfolioId = portfolioId;
             var response = await _mediator.Send(command);
 
-            if (response.IsError)
-                return NotFound(response.Message);
-            
-            return StatusCode(StatusCodes.Status201Created);
-        }
+            switch (response.ResponseCode)
+            {
+                case CreatePortfolioTransactionResponseCodes.PortfolioNotFound:
+                    return NotFound(response.Message);
 
-        
+                case CreatePortfolioTransactionResponseCodes.Success:
+                default:
+
+                    return StatusCode(StatusCodes.Status201Created);
+            }
+        }
     }
 }

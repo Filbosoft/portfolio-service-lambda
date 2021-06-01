@@ -37,11 +37,17 @@ namespace Api.Controllers
             };
             var response = await _mediator.Send(query);
 
-            if (response.IsError)
-                return BadRequest(response.Message);
+            switch (response.ResponseCode)
+            {
+                case GetPortfolioGrowthPointsResponseCodes.FromDateLaterThanToDate:
+                case GetPortfolioGrowthPointsResponseCodes.TimespanToLong:
+                    return BadRequest(response.Message);
 
-            var portfolios = response.Data;
-            return Ok(portfolios);
+                case GetPortfolioGrowthPointsResponseCodes.Success:
+                default:
+                    var portfolios = response.Data;
+                    return Ok(portfolios);
+            }
         }
     }
 }

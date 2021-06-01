@@ -29,15 +29,18 @@ namespace Api.Controllers
         {
             var response = await _mediator.Send(command);
 
-            if (response.IsError)
-                return BadRequest(response.Message);
+            switch (response.ResponseCode)
+            {
+                case CreatePortfolioResponseCodes.Success:
+                default:
+                    var newPortfolio = response.Data;
 
-            var newPortfolio = response.Data;
-            return CreatedAtAction(
-                nameof(GetPortfolioById),
-                new { Id = newPortfolio.Id },
-                newPortfolio
-            );
+                    return CreatedAtAction(
+                        nameof(GetPortfolioById),
+                        new { Id = newPortfolio.Id },
+                        newPortfolio
+                    );
+            }
         }
 
         [HttpGet]
@@ -52,11 +55,13 @@ namespace Api.Controllers
             };
             var response = await _mediator.Send(query);
 
-            if (response.IsError)
-                return BadRequest(response.Message);
-
-            var portfolios = response.Data;
-            return Ok(portfolios);
+            switch (response.ResponseCode)
+            {
+                case GetPortfoliosResponseCodes.Success:
+                default:
+                    var portfolios = response.Data;
+                    return Ok(portfolios);
+            }
         }
 
         [HttpGet("{id}")]
@@ -65,14 +70,18 @@ namespace Api.Controllers
             var query = new GetPortfolioByIdQuery { PortfolioId = id };
             var response = await _mediator.Send(query);
 
-            if (response.IsError)
-                return NotFound(response.Message);
+            switch (response.ResponseCode)
+            {
+                case GetPortfolioByIdResponseCodes.PortfolioNotFound:
+                    return NotFound(response.Message);
 
-            var portfolio = response.Data;
+                case GetPortfolioByIdResponseCodes.Success:
+                default:
+                    var portfolio = response.Data;
 
-            return Ok(portfolio);
+                    return Ok(portfolio);
+            }
         }
-
 
         [HttpPut("{id}")]
         public async Task<ActionResult<PortfolioDetail>> Put([FromRoute] string id, [FromBody] UpdatePortfolioCommand command)
@@ -80,21 +89,17 @@ namespace Api.Controllers
             command.Id = id;
             var response = await _mediator.Send(command);
 
-            if (response.IsError) 
-                return NotFound(response.Message);
+            switch (response.ResponseCode)
+            {
+                case UpdatePortfolioResponseCodes.PortfolioNotFound:
+                    return NotFound(response.Message);
 
-            var updatedPortfolio = response.Data;
+                case UpdatePortfolioResponseCodes.Success:
+                default:
+                    var updatedPortfolio = response.Data;
 
-            return Accepted(updatedPortfolio);
+                    return Accepted(updatedPortfolio);
+            }
         }
-
-        // [HttpDelete("{id}")]
-        // public async Task<ActionResult<bool>> Delete([FromRoute] string id)
-        // {
-        //     var command = new DeletePortfolioCommand { PortfolioId = id };
-        //     var response = await _mediator.Send(command);
-
-        //     return Ok();
-        // }
     }
 }
