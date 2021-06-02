@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Amazon.DynamoDBv2;
 using Api;
+using Api.Responses.V1;
 using Business.Commands;
 using Business.Extensions;
 using Conditus.Trader.Domain.Entities;
@@ -51,7 +52,8 @@ namespace Integration.Tests.V1.PortfolioTests
             //Then
             httpResponse.StatusCode.Should().Be(StatusCodes.Status201Created);
 
-            var newPortfolio = await httpResponse.GetDeserializedResponseBodyAsync<PortfolioDetail>();
+            var apiResponse = await httpResponse.GetDeserializedResponseBodyAsync<ApiResponse<PortfolioDetail>>();
+            var newPortfolio = apiResponse.Data;
 
             using (new AssertionScope())
             {

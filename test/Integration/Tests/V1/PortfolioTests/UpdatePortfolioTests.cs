@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.Model;
 using Api;
+using Api.Responses.V1;
 using Business.Commands;
 using Business.Extensions;
 using Business.HelperMethods;
@@ -17,6 +14,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Integration.Utilities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
 using static Integration.Seeds.V1.PortfolioSeeds;
@@ -60,7 +58,8 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.StatusCode.Should().Be(StatusCodes.Status202Accepted);
-            var updatedPortfolio = await httpResponse.GetDeserializedResponseBodyAsync<PortfolioDetail>();
+            var apiResponse = await httpResponse.GetDeserializedResponseBodyAsync<ApiResponse<PortfolioDetail>>();
+            var updatedPortfolio = apiResponse.Data;
 
             using (new AssertionScope())
             {
@@ -101,6 +100,9 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+            var problem = await httpResponse.GetDeserializedResponseBodyAsync<ProblemDetails>();
+
+            problem.Title.Should().Be(UpdatePortfolioResponseCodes.PortfolioNotFound.ToString());
         }
     }
 }

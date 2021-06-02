@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Api.Responses.V1;
 using Business.Commands;
 using Business.Queries;
 using Conditus.Trader.Domain.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -34,11 +36,15 @@ namespace Api.Controllers
                 case CreatePortfolioResponseCodes.Success:
                 default:
                     var newPortfolio = response.Data;
-
+                    var apiResponse = new ApiResponse<PortfolioDetail>
+                    {
+                        Data = newPortfolio,
+                        Status = StatusCodes.Status201Created
+                    };
                     return CreatedAtAction(
                         nameof(GetPortfolioById),
                         new { Id = newPortfolio.Id },
-                        newPortfolio
+                        apiResponse
                     );
             }
         }
@@ -60,7 +66,12 @@ namespace Api.Controllers
                 case GetPortfoliosResponseCodes.Success:
                 default:
                     var portfolios = response.Data;
-                    return Ok(portfolios);
+                    var apiResponse = new ApiResponse<IEnumerable<PortfolioOverview>>
+                    {
+                        Data = portfolios,
+                        Status = StatusCodes.Status200OK
+                    };
+                    return Ok(apiResponse);
             }
         }
 
@@ -73,13 +84,24 @@ namespace Api.Controllers
             switch (response.ResponseCode)
             {
                 case GetPortfolioByIdResponseCodes.PortfolioNotFound:
-                    return NotFound(response.Message);
+                    var notFoundProblem = new ProblemDetails
+                    {
+                        Title = response.ResponseCode.ToString(),
+                        Detail = response.Message,
+                        Status = StatusCodes.Status404NotFound
+                    };
+                    return NotFound(notFoundProblem);
 
                 case GetPortfolioByIdResponseCodes.Success:
                 default:
                     var portfolio = response.Data;
+                    var apiResponse = new ApiResponse<PortfolioDetail>
+                    {
+                        Data = portfolio,
+                        Status = StatusCodes.Status200OK
+                    };
 
-                    return Ok(portfolio);
+                    return Ok(apiResponse);
             }
         }
 
@@ -92,13 +114,24 @@ namespace Api.Controllers
             switch (response.ResponseCode)
             {
                 case UpdatePortfolioResponseCodes.PortfolioNotFound:
-                    return NotFound(response.Message);
+                    var notFoundProblem = new ProblemDetails
+                    {
+                        Title = response.ResponseCode.ToString(),
+                        Detail = response.Message,
+                        Status = StatusCodes.Status404NotFound
+                    };
+                    return NotFound(notFoundProblem);
 
                 case UpdatePortfolioResponseCodes.Success:
                 default:
                     var updatedPortfolio = response.Data;
+                    var apiResponse = new ApiResponse<PortfolioDetail>
+                    {
+                        Data = updatedPortfolio,
+                        Status = StatusCodes.Status202Accepted
+                    };
 
-                    return Accepted(updatedPortfolio);
+                    return Accepted(apiResponse);
             }
         }
     }

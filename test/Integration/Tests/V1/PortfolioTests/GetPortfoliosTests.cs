@@ -12,10 +12,11 @@ using FluentAssertions;
 using Integration.Utilities;
 using Xunit;
 using Conditus.DynamoDBMapper.Mappers;
+using Business.HelperMethods;
+using Api.Responses.V1;
 
 using static Integration.Tests.V1.TestConstants;
 using static Integration.Seeds.V1.PortfolioSeeds;
-using Business.HelperMethods;
 
 namespace Integration.Tests.V1.PortfolioTests
 {
@@ -76,7 +77,8 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.EnsureSuccessStatusCode();
-            var portfolios = await httpResponse.GetDeserializedResponseBodyAsync<IEnumerable<PortfolioOverview>>();
+            var apiResponse = await httpResponse.GetDeserializedResponseBodyAsync<ApiResponse<IEnumerable<PortfolioOverview>>>();
+            var portfolios = apiResponse.Data;
 
             portfolios.Should().NotBeNullOrEmpty();
         }
@@ -93,7 +95,8 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.EnsureSuccessStatusCode();
-            var portfolios = await httpResponse.GetDeserializedResponseBodyAsync<IEnumerable<PortfolioOverview>>();
+            var apiResponse = await httpResponse.GetDeserializedResponseBodyAsync<ApiResponse<IEnumerable<PortfolioOverview>>>();
+            var portfolios = apiResponse.Data;
 
             portfolios.Should().NotBeNullOrEmpty()
                 .And.OnlyContain(p => p.Name.Contains(PORTFOLIO_WITH_PORTFOLIO_IN_NAME.PortfolioName));
@@ -111,7 +114,8 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.EnsureSuccessStatusCode();
-            var portfolios = await httpResponse.GetDeserializedResponseBodyAsync<IEnumerable<PortfolioOverview>>();
+            var apiResponse = await httpResponse.GetDeserializedResponseBodyAsync<ApiResponse<IEnumerable<PortfolioOverview>>>();
+            var portfolios = apiResponse.Data;
 
             portfolios.Should().NotBeNullOrEmpty()
                 .And.NotContain(p => p.Id.Equals(OLD_PORTFOLIO.Id));

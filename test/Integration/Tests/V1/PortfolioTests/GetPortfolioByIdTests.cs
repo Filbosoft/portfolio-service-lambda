@@ -11,12 +11,14 @@ using Xunit;
 using Conditus.Trader.Domain.Models;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
-using Business.Extensions;
 using Conditus.DynamoDBMapper.Mappers;
+using Business.HelperMethods;
+using Api.Responses.V1;
+using Business.Queries;
+using Microsoft.AspNetCore.Mvc;
 
 using static Integration.Tests.V1.TestConstants;
 using static Integration.Seeds.V1.PortfolioSeeds;
-using Business.HelperMethods;
 
 namespace Integration.Tests.V1.PortfolioTests
 {
@@ -74,7 +76,8 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.EnsureSuccessStatusCode();
-            var portfolio = await httpResponse.GetDeserializedResponseBodyAsync<PortfolioDetail>();
+            var apiResponse = await httpResponse.GetDeserializedResponseBodyAsync<ApiResponse<PortfolioDetail>>();
+            var portfolio = apiResponse.Data;
 
             portfolio.Should().NotBeNull()
                 .And.BeEquivalentTo(PORTFOLIO_WITH_ASSETS, options => options.ExcludingMissingMembers());
@@ -91,6 +94,9 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+            var problem = await httpResponse.GetDeserializedResponseBodyAsync<ProblemDetails>();
+
+            problem.Title.Should().Be(GetPortfolioByIdResponseCodes.PortfolioNotFound.ToString());
         }
 
         [Fact]
@@ -104,6 +110,9 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+            var problem = await httpResponse.GetDeserializedResponseBodyAsync<ProblemDetails>();
+
+            problem.Title.Should().Be(GetPortfolioByIdResponseCodes.PortfolioNotFound.ToString());
         }
     }
 }
