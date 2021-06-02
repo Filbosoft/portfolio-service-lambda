@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Api.Responses.V1;
 using Business.Queries;
 using Conditus.Trader.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -41,12 +43,23 @@ namespace Api.Controllers
             {
                 case GetPortfolioGrowthPointsResponseCodes.FromDateLaterThanToDate:
                 case GetPortfolioGrowthPointsResponseCodes.TimespanToLong:
-                    return BadRequest(response.Message);
+                    var badRequestProblem = new ProblemDetails
+                    {
+                        Title = response.ResponseCode.ToString(),
+                        Detail = response.Message,
+                        Status = StatusCodes.Status400BadRequest
+                    };
+                    return BadRequest(badRequestProblem);
 
                 case GetPortfolioGrowthPointsResponseCodes.Success:
                 default:
-                    var portfolios = response.Data;
-                    return Ok(portfolios);
+                    var growthPoints = response.Data;
+                    var apiResponse = new ApiResponse<IEnumerable<PortfolioGrowthPoint>>
+                    {
+                        Data = growthPoints,
+                        Status = StatusCodes.Status200OK
+                    };
+                    return Ok(apiResponse);
             }
         }
     }

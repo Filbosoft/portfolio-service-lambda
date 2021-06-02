@@ -8,6 +8,9 @@ using Integration.Utilities;
 using Xunit;
 using Amazon.DynamoDBv2.DataModel;
 using System.Net;
+using Api.Responses.V1;
+using Microsoft.AspNetCore.Mvc;
+using Business.Queries;
 
 using static Integration.Tests.V1.TestConstants;
 using static Integration.Seeds.V1.PortfolioSeeds;
@@ -62,7 +65,8 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.EnsureSuccessStatusCode();
-            var growthPoints = await httpResponse.GetDeserializedResponseBodyAsync<IEnumerable<PortfolioGrowthPoint>>();
+            var apiResponse = await httpResponse.GetDeserializedResponseBodyAsync<ApiResponse<IEnumerable<PortfolioGrowthPoint>>>();
+            var growthPoints = apiResponse.Data;
 
             growthPoints.Should().NotBeNullOrEmpty()
                 .And.OnlyContain(g => g.GrowthPointTimestamp > DateTime.UtcNow.AddMonths(-1));
@@ -79,7 +83,8 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.EnsureSuccessStatusCode();
-            var growthPoints = await httpResponse.GetDeserializedResponseBodyAsync<IEnumerable<PortfolioGrowthPoint>>();
+            var apiResponse = await httpResponse.GetDeserializedResponseBodyAsync<ApiResponse<IEnumerable<PortfolioGrowthPoint>>>();
+            var growthPoints = apiResponse.Data;
 
             growthPoints.Should().BeNullOrEmpty();
         }
@@ -97,7 +102,8 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.EnsureSuccessStatusCode();
-            var growthPoints = await httpResponse.GetDeserializedResponseBodyAsync<IEnumerable<PortfolioGrowthPoint>>();
+            var apiResponse = await httpResponse.GetDeserializedResponseBodyAsync<ApiResponse<IEnumerable<PortfolioGrowthPoint>>>();
+            var growthPoints = apiResponse.Data;
 
             growthPoints.Should().NotBeNullOrEmpty()
                 .And.OnlyContain(g => g.GrowthPointTimestamp > fromDate);
@@ -117,7 +123,8 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.EnsureSuccessStatusCode();
-            var growthPoints = await httpResponse.GetDeserializedResponseBodyAsync<IEnumerable<PortfolioGrowthPoint>>();
+            var apiResponse = await httpResponse.GetDeserializedResponseBodyAsync<ApiResponse<IEnumerable<PortfolioGrowthPoint>>>();
+            var growthPoints = apiResponse.Data;
 
             growthPoints.Should().NotBeNullOrEmpty()
                 .And.OnlyContain(g => g.GrowthPointTimestamp > fromDate && g.GrowthPointTimestamp < toDate);
@@ -136,6 +143,9 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            var problem = await httpResponse.GetDeserializedResponseBodyAsync<ProblemDetails>();
+
+            problem.Title.Should().Be(GetPortfolioGrowthPointsResponseCodes.TimespanToLong.ToString());
         }
     }
 }
