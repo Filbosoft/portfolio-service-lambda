@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.Model;
 using Api;
 using Business.Commands;
 using Business.Extensions;
@@ -37,11 +34,6 @@ namespace Integration.Tests.V1.PortfolioTests
         {
             _client.Dispose();
             _db.Dispose();
-        }
-
-        private async void Seed()
-        {
-            
         }
 
         [Fact]

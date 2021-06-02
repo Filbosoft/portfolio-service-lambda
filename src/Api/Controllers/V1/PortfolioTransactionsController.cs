@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Api.Responses.V1;
 using Business.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -30,12 +31,20 @@ namespace Api.Controllers
             switch (response.ResponseCode)
             {
                 case CreatePortfolioTransactionResponseCodes.PortfolioNotFound:
-                    return NotFound(response.Message);
+                    var notFoundProblem = new ProblemDetails
+                    {
+                        Title = response.ResponseCode.ToString(),
+                        Detail = response.Message
+                    };
+                    return NotFound(notFoundProblem);
 
                 case CreatePortfolioTransactionResponseCodes.Success:
                 default:
-
-                    return StatusCode(StatusCodes.Status201Created);
+                    var apiResponse = new ApiResponse<object>
+                    {
+                        Status = StatusCodes.Status201Created
+                    };
+                    return StatusCode(StatusCodes.Status201Created, apiResponse);
             }
         }
     }
