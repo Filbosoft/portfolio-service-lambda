@@ -5,18 +5,17 @@ using System.Net.Http;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Api;
-using Business.Extensions;
 using Conditus.Trader.Domain.Entities;
 using Conditus.Trader.Domain.Models;
 using FluentAssertions;
 using Integration.Utilities;
 using Xunit;
-using Conditus.DynamoDBMapper.Mappers;
-using Business.HelperMethods;
 using Api.Responses.V1;
+using Conditus.DynamoDB.MappingExtensions.Mappers;
 
 using static Integration.Tests.V1.TestConstants;
 using static Integration.Seeds.V1.PortfolioSeeds;
+using Conditus.DynamoDB.QueryExtensions.Extensions;
 
 namespace Integration.Tests.V1.PortfolioTests
 {
@@ -59,7 +58,7 @@ namespace Integration.Tests.V1.PortfolioTests
             {
                 RequestItems = new Dictionary<string, List<WriteRequest>>
                 {
-                    { DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(), writeRequests }
+                    { typeof(PortfolioEntity).GetDynamoDBTableName(), writeRequests }
                 }
             };
 
@@ -119,7 +118,7 @@ namespace Integration.Tests.V1.PortfolioTests
 
             portfolios.Should().NotBeNullOrEmpty()
                 .And.NotContain(p => p.Id.Equals(OLD_PORTFOLIO.Id));
-            
+
             var portfolioWithAssets = portfolios.FirstOrDefault(p => p.Id.Equals(PORTFOLIO_WITH_ASSETS.Id));
 
             portfolioWithAssets.Should().NotBeNull();

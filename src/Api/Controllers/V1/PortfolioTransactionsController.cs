@@ -38,6 +38,15 @@ namespace Api.Controllers
                     };
                     return NotFound(notFoundProblem);
 
+                case CreatePortfolioTransactionResponseCodes.InsufficientCapital:
+                    var badRequestProblem = new ProblemDetails
+                    {
+                        Title = response.ResponseCode.ToString(),
+                        Detail = response.Message
+                    };
+
+                    return BadRequest(badRequestProblem);
+                    
                 case CreatePortfolioTransactionResponseCodes.Success:
                 default:
                     var apiResponse = new ApiResponse<object>

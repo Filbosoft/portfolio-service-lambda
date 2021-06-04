@@ -11,14 +11,14 @@ using Xunit;
 using Conditus.Trader.Domain.Models;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
-using Conditus.DynamoDBMapper.Mappers;
-using Business.HelperMethods;
 using Api.Responses.V1;
 using Business.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 using static Integration.Tests.V1.TestConstants;
 using static Integration.Seeds.V1.PortfolioSeeds;
+using Conditus.DynamoDB.MappingExtensions.Mappers;
+using Conditus.DynamoDB.QueryExtensions.Extensions;
 
 namespace Integration.Tests.V1.PortfolioTests
 {
@@ -58,7 +58,7 @@ namespace Integration.Tests.V1.PortfolioTests
             {
                 RequestItems = new Dictionary<string, List<WriteRequest>>
                 {
-                    { DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(), writeRequests }
+                    { typeof(PortfolioEntity).GetDynamoDBTableName(), writeRequests }
                 }
             };
 

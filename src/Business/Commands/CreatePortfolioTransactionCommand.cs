@@ -8,13 +8,13 @@ namespace Business.Commands
     {
         public string PortfolioId { get; set; }
         [Required]
-        [Range(1, double.MaxValue)]
         public decimal? Amount { get; set; }
     }
 
     public enum CreatePortfolioTransactionResponseCodes
     {
         Success,
-        PortfolioNotFound
+        PortfolioNotFound,
+        InsufficientCapital
     }
 }

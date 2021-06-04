@@ -4,13 +4,12 @@ using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using AutoMapper;
-using Business.Extensions;
-using Business.HelperMethods;
 using Business.Wrappers;
-using Conditus.DynamoDBMapper.Mappers;
+using Conditus.DynamoDB.MappingExtensions.Mappers;
+using Conditus.DynamoDB.QueryExtensions.Extensions;
 using Conditus.Trader.Domain.Entities;
+using Conditus.Trader.Domain.Entities.Indexes;
 using Conditus.Trader.Domain.Models;
-using Database.Indexes;
 using MediatR;
 
 namespace Business.Commands.Handlers
@@ -31,11 +30,10 @@ namespace Business.Commands.Handlers
 
         public async Task<BusinessResponse<PortfolioDetail>> Handle(UpdatePortfolioCommand request, CancellationToken cancellationToken)
         {
-            var entity = await _db.LoadByLocalIndexAsync<PortfolioEntity>(
-                request.RequestingUserId,
-                nameof(PortfolioEntity.Id),
-                request.Id,
-                PortfolioLocalIndexes.PortfolioIdIndex
+            var entity = await _db.LoadByLocalSecondaryIndexAsync<PortfolioEntity>(
+                request.RequestingUserId.GetAttributeValue(),
+                request.Id.GetAttributeValue(),
+                PortfolioLocalSecondaryIndexes.PortfolioIdIndex
             );
 
             if (entity == null)
@@ -66,7 +64,7 @@ namespace Business.Commands.Handlers
         {
             var updateRequest = new UpdateItemRequest
             {
-                TableName = DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(),
+                TableName = typeof(PortfolioEntity).GetDynamoDBTableName(),
                 Key = new Dictionary<string, AttributeValue>
                 {
                     {nameof(PortfolioEntity.OwnerId), request.RequestingUserId.GetAttributeValue()},

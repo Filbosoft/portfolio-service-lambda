@@ -3,11 +3,10 @@ using System.Net.Http;
 using Amazon.DynamoDBv2;
 using Api;
 using Business.Commands;
-using Business.Extensions;
-using Business.HelperMethods;
-using Conditus.DynamoDBMapper.Mappers;
+using Conditus.DynamoDB.MappingExtensions.Mappers;
+using Conditus.DynamoDB.QueryExtensions.Extensions;
 using Conditus.Trader.Domain.Entities;
-using Database.Indexes;
+using Conditus.Trader.Domain.Entities.Indexes;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Integration.Utilities;
@@ -37,11 +36,11 @@ namespace Integration.Tests.V1.PortfolioTests
         }
 
         [Fact]
-        public async void CreatePortfolioTransaction_WithValidAmount_ShouldReturnCreatedAndPortfolioCapitalShouldHaveBeenIncreased()
+        public async void CreatePortfolioTransaction_WithPositiveAmount_ShouldReturnCreatedAndPortfolioCapitalShouldHaveBeenIncreased()
         {
             //Given
             await _db.PutItemAsync(
-                DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(),
+                typeof(PortfolioEntity).GetDynamoDBTableName(),
                 PORTFOLIO_FOR_TRANSACTIONS.GetAttributeValueMap());
 
             var uri = $"{BASE_URL}/{PORTFOLIO_FOR_TRANSACTIONS.Id}/transactions";
@@ -56,11 +55,10 @@ namespace Integration.Tests.V1.PortfolioTests
             //Then
             httpResponse.StatusCode.Should().Be(StatusCodes.Status201Created);
 
-            var dbPortfolio = await _db.LoadByLocalIndexAsync<PortfolioEntity>(
-                TESTUSER_ID, 
-                nameof(PortfolioEntity.Id), 
-                PORTFOLIO_FOR_TRANSACTIONS.Id, 
-                PortfolioLocalIndexes.PortfolioIdIndex);
+            var dbPortfolio = await _db.LoadByLocalSecondaryIndexAsync<PortfolioEntity>(
+                TESTUSER_ID.GetAttributeValue(),
+                PORTFOLIO_FOR_TRANSACTIONS.Id.GetAttributeValue(),
+                PortfolioLocalSecondaryIndexes.PortfolioIdIndex);
 
             using (new AssertionScope())
             {
@@ -74,17 +72,53 @@ namespace Integration.Tests.V1.PortfolioTests
         }
 
         [Fact]
-        public async void CreatePortfolioTransaction_WithNegativeAmount_ShouldReturnBadRequest()
+        public async void CreatePortfolioTransaction_WithNegativeAmount_ShouldReturnCreatedAndPortfolioCapitalShouldHaveBeenDecreased()
         {
             //Given
             await _db.PutItemAsync(
-                DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(),
+                typeof(PortfolioEntity).GetDynamoDBTableName(),
                 PORTFOLIO_FOR_TRANSACTIONS.GetAttributeValueMap());
-                
+
             var uri = $"{BASE_URL}/{PORTFOLIO_FOR_TRANSACTIONS.Id}/transactions";
             var transactionCreateCommand = new CreatePortfolioTransactionCommand
             {
-                Amount = -100
+                Amount = (PORTFOLIO_FOR_TRANSACTIONS.Capital / 10) * -1
+            };
+
+            //When
+            var httpResponse = await _client.PostAsync(uri, HttpSerializer.GetStringContent(transactionCreateCommand));
+
+            //Then
+            httpResponse.StatusCode.Should().Be(StatusCodes.Status201Created);
+
+            var dbPortfolio = await _db.LoadByLocalSecondaryIndexAsync<PortfolioEntity>(
+                TESTUSER_ID.GetAttributeValue(),
+                PORTFOLIO_FOR_TRANSACTIONS.Id.GetAttributeValue(),
+                PortfolioLocalSecondaryIndexes.PortfolioIdIndex);
+
+            using (new AssertionScope())
+            {
+                dbPortfolio.Should().NotBeNull()
+                    .And.BeEquivalentTo(PORTFOLIO_FOR_TRANSACTIONS, options => options
+                        .Excluding(p => p.PortfolioName)
+                        .Excluding(p => p.Capital)
+                        .ExcludingMissingMembers());
+                dbPortfolio.Capital.Should().Be(PORTFOLIO_FOR_TRANSACTIONS.Capital + transactionCreateCommand.Amount);
+            }
+        }
+
+        [Fact]
+        public async void CreatePortfolioTransaction_WithNegativeAmountLargerThanPortfolioCapital_ShouldReturnBadRequest()
+        {
+            //Given
+            await _db.PutItemAsync(
+                typeof(PortfolioEntity).GetDynamoDBTableName(),
+                PORTFOLIO_FOR_TRANSACTIONS.GetAttributeValueMap());
+
+            var uri = $"{BASE_URL}/{PORTFOLIO_FOR_TRANSACTIONS.Id}/transactions";
+            var transactionCreateCommand = new CreatePortfolioTransactionCommand
+            {
+                Amount = PORTFOLIO_FOR_TRANSACTIONS.Capital * -1.1M
             };
 
             //When
@@ -95,7 +129,7 @@ namespace Integration.Tests.V1.PortfolioTests
         }
 
         [Fact]
-        public async void UpdatePortfolio_WithNonExistingId_ShouldReturnNotFound()
+        public async void CreatePortfolioTransaction_WithNonExistingId_ShouldReturnNotFound()
         {
             //Given
             var uri = $"{BASE_URL}/{Guid.NewGuid()}/transactions";

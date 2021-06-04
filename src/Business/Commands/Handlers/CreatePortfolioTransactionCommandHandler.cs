@@ -4,12 +4,11 @@ using AutoMapper;
 using Business.Wrappers;
 using System.Collections.Generic;
 using Conditus.Trader.Domain.Entities;
-using Conditus.DynamoDBMapper.Mappers;
 using Amazon.DynamoDBv2;
-using Business.HelperMethods;
-using Database.Indexes;
 using Amazon.DynamoDBv2.Model;
-using Business.Extensions;
+using Conditus.DynamoDB.MappingExtensions.Mappers;
+using Conditus.DynamoDB.QueryExtensions.Extensions;
+using Conditus.Trader.Domain.Entities.Indexes;
 
 namespace Business.Commands.Handlers
 {
@@ -27,17 +26,22 @@ namespace Business.Commands.Handlers
 
         public async Task<BusinessResponse<bool>> Handle(CreatePortfolioTransactionCommand request, CancellationToken cancellationToken)
         {
-            var entity = await _db.LoadByLocalIndexAsync<PortfolioEntity>(
-                request.RequestingUserId,
-                nameof(PortfolioEntity.Id),
-                request.PortfolioId,
-                PortfolioLocalIndexes.PortfolioIdIndex
+            var entity = await _db.LoadByLocalSecondaryIndexAsync<PortfolioEntity>(
+                request.RequestingUserId.GetAttributeValue(),
+                request.PortfolioId.GetAttributeValue(),
+                PortfolioLocalSecondaryIndexes.PortfolioIdIndex
             );
 
             if (entity == null)
                 return BusinessResponse.Fail<bool>(
                     CreatePortfolioTransactionResponseCodes.PortfolioNotFound,
                     $"No portfolio with the id of {request.PortfolioId} was found");
+
+            if (request.Amount < 0 
+                && (entity.Capital + request.Amount) < 0)
+                return BusinessResponse.Fail<bool>(
+                    CreatePortfolioTransactionResponseCodes.InsufficientCapital,
+                    $"The portfolio had insufficient capital to make this withdraw");
 
             var updateRequest = GetUpdateRequest(request, entity);
             await _db.UpdateItemAsync(updateRequest);
@@ -58,7 +62,7 @@ namespace Business.Commands.Handlers
             var newCapital = entity.Capital + request.Amount;
             var updateRequest = new UpdateItemRequest
             {
-                TableName = DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(),
+                TableName = typeof(PortfolioEntity).GetDynamoDBTableName(),
                 Key = new Dictionary<string, AttributeValue>
                 {
                     {nameof(PortfolioEntity.OwnerId), request.RequestingUserId.GetAttributeValue()},

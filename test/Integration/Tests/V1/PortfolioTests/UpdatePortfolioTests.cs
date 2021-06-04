@@ -4,12 +4,12 @@ using Amazon.DynamoDBv2;
 using Api;
 using Api.Responses.V1;
 using Business.Commands;
-using Business.Extensions;
-using Business.HelperMethods;
-using Conditus.DynamoDBMapper.Mappers;
+
+using Conditus.DynamoDB.MappingExtensions.Mappers;
+using Conditus.DynamoDB.QueryExtensions.Extensions;
 using Conditus.Trader.Domain.Entities;
+using Conditus.Trader.Domain.Entities.Indexes;
 using Conditus.Trader.Domain.Models;
-using Database.Indexes;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Integration.Utilities;
@@ -44,7 +44,7 @@ namespace Integration.Tests.V1.PortfolioTests
         {
             //Given
             await _db.PutItemAsync(
-                DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(),
+                typeof(PortfolioEntity).GetDynamoDBTableName(),
                 PORTFOLIO_TO_UPDATE.GetAttributeValueMap());
                 
             var uri = $"{BASE_URL}/{PORTFOLIO_TO_UPDATE.Id}";
@@ -69,11 +69,10 @@ namespace Integration.Tests.V1.PortfolioTests
                     .ExcludingMissingMembers());
             }
 
-            var dbPortfolio = await _db.LoadByLocalIndexAsync<PortfolioEntity>(
-                TESTUSER_ID, 
-                nameof(PortfolioEntity.Id), 
-                PORTFOLIO_TO_UPDATE.Id, 
-                PortfolioLocalIndexes.PortfolioIdIndex);
+            var dbPortfolio = await _db.LoadByLocalSecondaryIndexAsync<PortfolioEntity>(
+                TESTUSER_ID.GetAttributeValue(), 
+                PORTFOLIO_TO_UPDATE.Id.GetAttributeValue(),
+                PortfolioLocalSecondaryIndexes.PortfolioIdIndex);
 
             using (new AssertionScope())
             {

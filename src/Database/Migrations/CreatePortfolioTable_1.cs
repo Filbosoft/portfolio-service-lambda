@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
-using Database.Indexes;
+using Conditus.Trader.Domain.Entities.Indexes;
 
 namespace Database
 {
@@ -57,7 +57,7 @@ namespace Database
                 {
                     new LocalSecondaryIndex
                     {
-                        IndexName = PortfolioLocalIndexes.PortfolioIdIndex,
+                        IndexName = PortfolioLocalSecondaryIndexes.PortfolioIdIndex,
                         KeySchema = new List<KeySchemaElement>
                         {
                             partitionKey,

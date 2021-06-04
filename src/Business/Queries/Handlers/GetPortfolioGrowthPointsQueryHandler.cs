@@ -6,9 +6,9 @@ using Conditus.Trader.Domain.Entities;
 using Amazon.DynamoDBv2;
 using System;
 using Amazon.DynamoDBv2.Model;
-using Conditus.DynamoDBMapper.Mappers;
+using Conditus.DynamoDB.MappingExtensions.Mappers;
 using System.Linq;
-using Business.HelperMethods;
+using Conditus.DynamoDB.QueryExtensions.Extensions;
 
 namespace Business.Queries.Handlers
 {
@@ -63,7 +63,7 @@ namespace Business.Queries.Handlers
         {
             var query = new QueryRequest
             {
-                TableName = DynamoDBHelper.GetDynamoDBTableName<PortfolioGrowthPoint>(),
+                TableName = typeof(PortfolioGrowthPoint).GetDynamoDBTableName(),
                 Select = "ALL_ATTRIBUTES",
                 ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {

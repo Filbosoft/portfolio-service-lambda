@@ -2,11 +2,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using AutoMapper;
-using Business.Extensions;
 using Business.Wrappers;
+using Conditus.DynamoDB.MappingExtensions.Mappers;
+using Conditus.DynamoDB.QueryExtensions.Extensions;
 using Conditus.Trader.Domain.Entities;
+using Conditus.Trader.Domain.Entities.Indexes;
 using Conditus.Trader.Domain.Models;
-using Database.Indexes;
 
 namespace Business.Queries.Handlers
 {
@@ -24,11 +25,10 @@ namespace Business.Queries.Handlers
 
         public async Task<BusinessResponse<PortfolioDetail>> Handle(GetPortfolioByIdQuery request, CancellationToken cancellationToken)
         {
-            var entity = await _db.LoadByLocalIndexAsync<PortfolioEntity>(
-                request.RequestingUserId,
-                nameof(PortfolioEntity.Id),
-                request.PortfolioId,
-                PortfolioLocalIndexes.PortfolioIdIndex);
+            var entity = await _db.LoadByLocalSecondaryIndexAsync<PortfolioEntity>(
+                request.RequestingUserId.GetAttributeValue(),
+                request.PortfolioId.GetAttributeValue(),
+                PortfolioLocalSecondaryIndexes.PortfolioIdIndex);
 
             if (entity == null)
                 return BusinessResponse.Fail<PortfolioDetail>(

@@ -6,9 +6,9 @@ using Business.Wrappers;
 using System.Collections.Generic;
 using Conditus.Trader.Domain.Models;
 using Conditus.Trader.Domain.Entities;
-using Conditus.DynamoDBMapper.Mappers;
 using Amazon.DynamoDBv2;
-using Business.HelperMethods;
+using Conditus.DynamoDB.MappingExtensions.Mappers;
+using Conditus.DynamoDB.QueryExtensions.Extensions;
 
 namespace Business.Commands.Handlers
 {
@@ -32,7 +32,7 @@ namespace Business.Commands.Handlers
             entity.Assets = new List<PortfolioAsset>();
             entity.CurrencyCode = DEFAULT_CURRENCY_CODE;
 
-            var response = await _db.PutItemAsync(DynamoDBHelper.GetDynamoDBTableName<PortfolioEntity>(), entity.GetAttributeValueMap());
+            var response = await _db.PutItemAsync(typeof(PortfolioEntity).GetDynamoDBTableName(), entity.GetAttributeValueMap());
             
             var portfolioDetail = _mapper.Map<PortfolioDetail>(entity);
 

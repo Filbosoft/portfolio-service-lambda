@@ -5,10 +5,11 @@ using Amazon.DynamoDBv2;
 using Api;
 using Api.Responses.V1;
 using Business.Commands;
-using Business.Extensions;
+using Conditus.DynamoDB.MappingExtensions.Mappers;
+using Conditus.DynamoDB.QueryExtensions.Extensions;
 using Conditus.Trader.Domain.Entities;
+using Conditus.Trader.Domain.Entities.Indexes;
 using Conditus.Trader.Domain.Models;
-using Database.Indexes;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Integration.Utilities;
@@ -63,11 +64,10 @@ namespace Integration.Tests.V1.PortfolioTests
                 newPortfolio.Id.Should().NotBeNullOrEmpty();
             }
 
-            var dbPortfolio = await _db.LoadByLocalIndexAsync<PortfolioEntity>(
-                TESTUSER_ID, 
-                nameof(PortfolioEntity.Id), 
-                newPortfolio.Id, 
-                PortfolioLocalIndexes.PortfolioIdIndex);
+            var dbPortfolio = await _db.LoadByLocalSecondaryIndexAsync<PortfolioEntity>(
+                TESTUSER_ID.GetAttributeValue(), 
+                newPortfolio.Id.GetAttributeValue(), 
+                PortfolioLocalSecondaryIndexes.PortfolioIdIndex);
                 
             dbPortfolio.Should().NotBeNull()
                 .And.BeEquivalentTo(createPortfolioCommand, options => options
