@@ -24,6 +24,8 @@ namespace Api
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
+            services.ConfigureCors(Configuration);
+            
             var authOptions = Configuration.GetSection("Auth")
                 .Get<JwtBearerOptions>();
 
@@ -58,10 +60,11 @@ namespace Api
             else
                 app.UseExceptionHandler("/error");
             
-
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseAuthentication();
             app.UseAuthorization();

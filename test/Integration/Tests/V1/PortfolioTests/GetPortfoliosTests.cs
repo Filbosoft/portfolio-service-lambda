@@ -12,10 +12,10 @@ using Integration.Utilities;
 using Xunit;
 using Api.Responses.V1;
 using Conditus.DynamoDB.MappingExtensions.Mappers;
+using Conditus.DynamoDB.QueryExtensions.Extensions;
 
 using static Integration.Tests.V1.TestConstants;
 using static Integration.Seeds.V1.PortfolioSeeds;
-using Conditus.DynamoDB.QueryExtensions.Extensions;
 
 namespace Integration.Tests.V1.PortfolioTests
 {
