@@ -1,7 +1,7 @@
 # Technical doc
 
 ## Deploying
-dotnet lambda deploy-serverless portfolio-service
+dotnet lambda deploy-serverless conditus-trader-portfolio-service
 
 - https://docs.aws.amazon.com/toolkit-for-visual-studio/latest/user-guide/lambda-cli-publish.html 
 

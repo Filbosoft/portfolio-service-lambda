@@ -11,7 +11,7 @@ namespace Api.Controllers
     [ApiController]
     [Authorize]
     [ApiVersion("1.0")]
-    [Route("api/v{v:apiVersion}/portfolios/{portfolioId}/transactions")]
+    [Route("v{v:apiVersion}/portfolios/{portfolioId}/transactions")]
     [Produces("application/json")]
     public class PortfolioTransactionsController : ControllerBase
     {
