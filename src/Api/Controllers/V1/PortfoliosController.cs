@@ -33,7 +33,6 @@ namespace Api.Controllers
 
             switch (response.ResponseCode)
             {
-                case CreatePortfolioResponseCodes.Success:
                 default:
                     var newPortfolio = response.Data;
                     var apiResponse = new ApiResponse<PortfolioDetail>
@@ -63,7 +62,6 @@ namespace Api.Controllers
 
             switch (response.ResponseCode)
             {
-                case GetPortfoliosResponseCodes.Success:
                 default:
                     var portfolios = response.Data;
                     var apiResponse = new ApiResponse<IEnumerable<PortfolioOverview>>
@@ -92,7 +90,6 @@ namespace Api.Controllers
                     };
                     return NotFound(notFoundProblem);
 
-                case GetPortfolioByIdResponseCodes.Success:
                 default:
                     var portfolio = response.Data;
                     var apiResponse = new ApiResponse<PortfolioDetail>
@@ -106,7 +103,7 @@ namespace Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<PortfolioDetail>> Put([FromRoute] string id, [FromBody] UpdatePortfolioCommand command)
+        public async Task<ActionResult<PortfolioDetail>> UpdatePortfolio([FromRoute] string id, [FromBody] UpdatePortfolioCommand command)
         {
             command.Id = id;
             var response = await _mediator.Send(command);
@@ -122,7 +119,6 @@ namespace Api.Controllers
                     };
                     return NotFound(notFoundProblem);
 
-                case UpdatePortfolioResponseCodes.Success:
                 default:
                     var updatedPortfolio = response.Data;
                     var apiResponse = new ApiResponse<PortfolioDetail>
@@ -132,6 +128,29 @@ namespace Api.Controllers
                     };
 
                     return Accepted(apiResponse);
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePortfolio([FromRoute] string id)
+        {
+            var command = new DeletePortfolioCommand { PortfolioId = id };
+            var response = await _mediator.Send(command);
+
+            switch (response.ResponseCode)
+            {
+                case DeletePortfolioResponseCodes.PortfolioContainsAssets:
+                    var portfolioContainsAssetsProblem = new ProblemDetails
+                    {
+                        Title = response.ResponseCode.ToString(),
+                        Detail = response.Message,
+                        Status = StatusCodes.Status400BadRequest
+                    };
+                    return BadRequest(portfolioContainsAssetsProblem);
+
+                case DeletePortfolioResponseCodes.PortfolioNotFound:
+                default:
+                    return Ok();
             }
         }
     }

@@ -8,6 +8,7 @@ using Xunit;
 using Amazon.DynamoDBv2;
 using Conditus.DynamoDB.MappingExtensions.Mappers;
 using Conditus.DynamoDB.QueryExtensions.Extensions;
+using Conditus.Trader.Domain.Entities.Indexes;
 
 using static Integration.Tests.V1.TestConstants;
 using static Integration.Seeds.V1.PortfolioSeeds;
@@ -48,6 +49,13 @@ namespace Integration.Tests.V1.PortfolioTests
 
             //Then
             httpResponse.EnsureSuccessStatusCode();
+
+            var dbPortfolio = await _db.LoadByLocalSecondaryIndexAsync<PortfolioEntity>(
+                TESTUSER_ID.GetAttributeValue(), 
+                PORTFOLIO_TO_DELETE.Id.GetAttributeValue(), 
+                PortfolioLocalSecondaryIndexes.PortfolioIdIndex);
+
+            dbPortfolio.Should().BeNull();
         }
 
         [Fact]
