@@ -86,5 +86,14 @@ namespace Integration.Seeds.V1
             OwnerId = TESTUSER_ID,
             CreatedAt = Convert.ToDateTime("5/25/2021 08:00:04 AM").ToUniversalTime()
         };
+
+        public static readonly PortfolioEntity PORTFOLIO_TO_DELETE = new PortfolioEntity
+        {
+            Id = "9eb7a171-06f3-4de8-b4f6-44ef77fe5d87",
+            Capital = 100.9M,
+            PortfolioName = "e19ac747-429f-491c-970a-6351e3d864a4",
+            OwnerId = TESTUSER_ID,
+            CreatedAt = Convert.ToDateTime("5/25/2021 08:00:05 AM").ToUniversalTime()
+        };
     }
 }
