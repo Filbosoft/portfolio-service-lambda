@@ -66,7 +66,7 @@ namespace Integration.Tests.V1.PortfolioTests
         }
 
         [Fact]
-        public async void GetPortfolioById_WithExistingId_ShouldReturnSeededPortfolio()
+        public async void GetPortfolioById_WithUserPortfolioId_ShouldReturnSeededPortfolio()
         {
             //Given
             var uri = $"{BASE_URL}/{PORTFOLIO_WITH_ASSETS.Id}";
@@ -100,7 +100,7 @@ namespace Integration.Tests.V1.PortfolioTests
         }
 
         [Fact]
-        public async void GetPortfolioById_WithNonAuthorizedPortfolioId_ShouldReturnNotFound()
+        public async void GetPortfolioById_WithNonUserPortfolioId_ShouldReturnNotFound()
         {
             //Given
             var uri = $"{BASE_URL}/{NON_USER_PORTFOLIO.Id}";
