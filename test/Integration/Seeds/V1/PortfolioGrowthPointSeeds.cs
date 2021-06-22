@@ -13,6 +13,7 @@ namespace Integration.Seeds.V1
             PortfolioId = PORTFOLIO_WITH_GROWTH_POINTS.Id,
             OwnerId = TESTUSER_ID,
             CurrentGrowth = 100.1M,
+            MarketValue = 999999.1M,
             GrowthPointTimestamp = DateTime.UtcNow.AddDays(-1)
         };
 
@@ -21,6 +22,7 @@ namespace Integration.Seeds.V1
             PortfolioId = PORTFOLIO_WITH_GROWTH_POINTS.Id,
             OwnerId = TESTUSER_ID,
             CurrentGrowth = 100.1M,
+            MarketValue = 900000.1M,
             GrowthPointTimestamp = DateTime.UtcNow.AddMonths(-1)
         };
 
@@ -29,6 +31,7 @@ namespace Integration.Seeds.V1
             PortfolioId = PORTFOLIO_WITH_GROWTH_POINTS.Id,
             OwnerId = TESTUSER_ID,
             CurrentGrowth = 100.1M,
+            MarketValue = 999999.1M,
             GrowthPointTimestamp = DateTime.UtcNow.AddYears(-1)
         };
 
@@ -37,6 +40,7 @@ namespace Integration.Seeds.V1
             PortfolioId = PORTFOLIO_WITH_GROWTH_POINTS.Id,
             OwnerId = TESTUSER_ID,
             CurrentGrowth = 100.1M,
+            MarketValue = 999999.1M,
             GrowthPointTimestamp = Convert.ToDateTime("5/25/2001 08:00:04 AM").ToUniversalTime()
         };
 
@@ -45,6 +49,7 @@ namespace Integration.Seeds.V1
             PortfolioId = NON_USER_PORTFOLIO_WITH_GROWTH_POINTS.Id,
             OwnerId = NON_USER_PORTFOLIO_WITH_GROWTH_POINTS.OwnerId,
             CurrentGrowth = 100.1M,
+            MarketValue = 999999.1M,
             GrowthPointTimestamp = DateTime.UtcNow.AddDays(-1)
         };
     }

@@ -69,7 +69,9 @@ namespace Integration.Tests.V1.PortfolioTests
             var growthPoints = apiResponse.Data;
 
             growthPoints.Should().NotBeNullOrEmpty()
-                .And.OnlyContain(g => g.GrowthPointTimestamp > DateTime.UtcNow.AddMonths(-1));
+                .And.OnlyContain(g => g.GrowthPointTimestamp > DateTime.UtcNow.AddMonths(-1))
+                .And.ContainEquivalentOf(DAY_OLD_GROWTH_POINT, options => 
+                    options.Excluding(pg => pg.GrowthPointTimestamp));
         }
 
         [Fact]
